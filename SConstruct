@@ -76,7 +76,7 @@ envLib = envBase.Copy()
 #  The demos building environment
 #  This one is used to build the OSGUIsh demos.
 # ------------------------------------------------------------------------------
-envTests = envBase.Copy (LIBS = [ "OSGUIsh", "osg", "osgProducer",
+envDemos = envBase.Copy (LIBS = [ "OSGUIsh", "osg", "osgProducer",
                                   "boost_signals-gcc-mt" ])
 
 
