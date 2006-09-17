@@ -27,10 +27,11 @@ namespace OSGUIsh
 
 
          typedef boost::signal<void (osgGA::GUIEventAdapter*, std::string)> Signal_t;
+         typedef boost::shared_ptr<Signal_t> SignalPtr;
 
          void addNode (osg::ref_ptr<osg::Node> node, const std::string& nodeName);
 
-         Signal_t& getSignal (const std::string& nodeName,
+         SignalPtr getSignal (const std::string& nodeName,
                               const std::string& eventName);
 
 
@@ -47,10 +48,18 @@ namespace OSGUIsh
          std::map <osgGA::GUIEventAdapter::EventType, bool> handleReturnValues_;
 
          // maps name to node
-         std::map <std::string, osg::ref_ptr<osg::Node> > nodesByName_;
+         typedef std::map <std::string, osg::ref_ptr<osg::Node> >
+         NodesByNameMap_t;
+
+         NodesByNameMap_t nodesByName_;
 
          // node -> event name -> signal
-         std::map <osg::ref_ptr<osg::Node>, std::map <std::string, Signal_t> > events_;
+         typedef std::map <std::string, SignalPtr> NameToSignalMap_t;
+
+         typedef std::map <osg::ref_ptr<osg::Node>, NameToSignalMap_t >
+         SignalsMap_t;
+
+         SignalsMap_t signals_;
 
          osg::ref_ptr<osg::Node> focusedNode_;
    };

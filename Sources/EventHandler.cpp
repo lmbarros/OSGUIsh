@@ -80,16 +80,50 @@ namespace OSGUIsh
    void EventHandler::addNode (osg::ref_ptr<osg::Node> node,
                                const std::string& nodeName)
    {
-      
+      nodesByName_[nodeName] = node;
+
+#     define OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT) \
+         signals_[node][#EVENT] = SignalPtr (new EventHandler::Signal_t());
+
+      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseEnter);
+      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseLeave);
+      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseMove);
+      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseDown);
+      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseUp);
+      OSGUISH_EVENTHANDLER_ADD_EVENT (Click);
+      OSGUISH_EVENTHANDLER_ADD_EVENT (DoubleClick);
+      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseWheelUp);
+      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseWheelDown);
+      OSGUISH_EVENTHANDLER_ADD_EVENT (KeyUp);
+      OSGUISH_EVENTHANDLER_ADD_EVENT (KeyDown);
+
+#     undef OSGUISH_EVENTHANDLER_ADD_EVENT
    }
 
 
    // - EventHandler::getSignal ------------------------------------------------
-   EventHandler::Signal_t& EventHandler::getSignal (const std::string& nodeName,
-                                                    const std::string& eventName)
+   EventHandler::SignalPtr EventHandler::getSignal(
+      const std::string& nodeName, const std::string& eventName)
    {
-      EventHandler::Signal_t signal;
-      return signal; // Just testing. This obviously doesn't work.
+      NodesByNameMap_t::const_iterator node = nodesByName_.find (nodeName);
+
+      if (node == nodesByName_.end())
+      {
+         throw std::runtime_error(
+            ("Trying to get a signal of an unknown node: '" + nodeName
+             + "'.").c_str());
+      }
+
+      NameToSignalMap_t::iterator signal =
+         signals_[node->second].find (eventName);
+
+      if (signal == signals_[node->second].end())
+      {
+         throw std::runtime_error (("Trying to get an unknown signal: '"
+                                    + eventName + "'.").c_str());
+      }
+
+      return signal->second;
    }
 
 

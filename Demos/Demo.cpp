@@ -50,7 +50,7 @@ int main (int argc, char* argv[])
 
    // Register event handlers
    guishEH->addNode (loadedModel, "Tree");
-   guishEH->getSignal ("Tree", "MouseDown").connect (&HandleAnEvent);
+   guishEH->getSignal ("Tree", "MouseEnter")->connect (&HandleAnEvent);
 
 
    // Enter rendering loop
