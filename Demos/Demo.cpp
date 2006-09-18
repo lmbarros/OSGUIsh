@@ -9,16 +9,6 @@
 #include <OSGUIsh/EventHandler.hpp>
 
 
-// class AnEventHandler
-// {
-//    public:
-//       void operator()(osgGA::GUIEventAdapter* ea, std::string nodeName)
-//       {
-//          std::cout << "Node '" << nodeName << "' just got an event!\n";
-//       }
-// };
-
-
 void HandleMouseMove (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
 {
    std::cout << "Mouse moved on node '" << node.get() << "'!\n";
@@ -31,7 +21,7 @@ void HandleMouseEnter (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
 
 void HandleMouseLeave (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
 {
-   std::cout << "Leaved node '" << node.get() << "'!\n";
+   std::cout << "Left node '" << node.get() << "'!\n";
 }
 
 
@@ -61,7 +51,7 @@ int main (int argc, char* argv[])
 
    // Register event handlers
    guishEH->addNode (loadedModel);
-//    guishEH->getSignal (loadedModel, "MouseMove")->connect (&HandleMouseMove);
+   guishEH->getSignal (loadedModel, "MouseMove")->connect (&HandleMouseMove);
    guishEH->getSignal (loadedModel, "MouseEnter")->connect (&HandleMouseEnter);
    guishEH->getSignal (loadedModel, "MouseLeave")->connect (&HandleMouseLeave);
 

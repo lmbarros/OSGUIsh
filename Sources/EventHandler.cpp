@@ -15,7 +15,9 @@ namespace OSGUIsh
    // - EventHandler::EventHandler ---------------------------------------------
    EventHandler::EventHandler (osgProducer::Viewer& viewer)
       : viewer_(viewer)
-   { }
+   {
+      addNode (NodePtr());
+   }
 
 
 
@@ -27,46 +29,7 @@ namespace OSGUIsh
       {
          case osgGA::GUIEventAdapter::FRAME:
          {
-            hitList_.clear();
-            viewer_.computeIntersections (ea.getX(), ea.getY(), hitList_);
-
-            osg::ref_ptr<osg::Node> currentNodeUnderMouse;
-            if (hitList_.size() > 0)
-            {
-                currentNodeUnderMouse = getObservedNode (hitList_[0].getNodePath());
-
-               assert (signals_.find(currentNodeUnderMouse) != signals_.end()
-                       && "'getObservedNode()' returned an invalid value!");
-            }
-
-            osg::ref_ptr<osg::Node> prevNodeUnderMouse = nodeUnderMouse_;
-
-            nodeUnderMouse_ = currentNodeUnderMouse;
-
-            if (currentNodeUnderMouse == prevNodeUnderMouse)
-            {
-               // <--- TODO: Don't know the node name...
-               // <--- TODO: Must check if the position changed, too.
-               if (prevNodeUnderMouse.valid())
-                  signals_[currentNodeUnderMouse]["MouseMove"]->operator()(ea, currentNodeUnderMouse);
-            }
-            else // currentNodeUnderMouse != prevNodeUnderMouse
-            {
-               if (!currentNodeUnderMouse.valid())
-               {
-                  signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(ea, prevNodeUnderMouse);
-               }
-               else if (!prevNodeUnderMouse.valid())
-               {
-                  signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(ea, currentNodeUnderMouse);
-               }
-               else // different and non-null
-               {
-                  signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(ea, prevNodeUnderMouse);
-                  signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(ea, currentNodeUnderMouse);
-               }
-            }
-
+            handleFrameEvent (ea);
             return handleReturnValues_[osgGA::GUIEventAdapter::FRAME];
          }
 
@@ -181,5 +144,63 @@ namespace OSGUIsh
       return nodePtr();
    }
 
+
+
+   // - EventHandler::handleFrameEvent -----------------------------------------
+   void EventHandler::handleFrameEvent (const osgGA::GUIEventAdapter& ea)
+   {
+      // Find out who is, and who was under the mouse pointer
+      hitList_.clear();
+      viewer_.computeIntersections (ea.getX(), ea.getY(), hitList_);
+
+      NodePtr currentNodeUnderMouse;
+      osg::Vec3 currentPositionUnderMouse;
+
+      if (hitList_.size() > 0)
+      {
+         currentNodeUnderMouse = getObservedNode (hitList_[0].getNodePath());
+         assert (signals_.find (currentNodeUnderMouse) != signals_.end()
+                 && "'getObservedNode()' returned an invalid value!");
+
+         currentPositionUnderMouse = hitList_[0].getLocalIntersectPoint();
+      }
+
+      NodePtr prevNodeUnderMouse = nodeUnderMouse_;
+      osg::Vec3 prevPositionUnderMouse = positionUnderMouse_;
+
+      nodeUnderMouse_ = currentNodeUnderMouse;
+      positionUnderMouse_ = currentPositionUnderMouse;
+
+      // Trigger the events
+      if (currentNodeUnderMouse == prevNodeUnderMouse)
+      {
+         if (prevNodeUnderMouse.valid()
+             && currentPositionUnderMouse != prevPositionUnderMouse)
+         {
+            signals_[currentNodeUnderMouse]["MouseMove"]->operator()(
+               ea, currentNodeUnderMouse);
+         }
+      }
+      else // currentNodeUnderMouse != prevNodeUnderMouse
+      {
+         if (!currentNodeUnderMouse.valid())
+         {
+            signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(
+               ea, prevNodeUnderMouse);
+         }
+         else if (!prevNodeUnderMouse.valid())
+         {
+            signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(
+               ea, currentNodeUnderMouse);
+         }
+         else // different and both are valid
+         {
+            signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(
+               ea, prevNodeUnderMouse);
+            signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(
+               ea, currentNodeUnderMouse);
+         }
+      }
+   }
 
 } // namespace OSGUIsh
