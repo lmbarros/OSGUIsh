@@ -35,38 +35,14 @@ namespace OSGUIsh
 
          case osgGA::GUIEventAdapter::PUSH:
          {
-            std::cerr << "PUSH\n";
-
-
-            typedef osgUtil::IntersectVisitor::HitList::iterator iter_t;
-            for (iter_t p = hitList_.begin(); p != hitList_.end(); ++p)
-            {
-               if (p->_geode.valid() && !p->_geode->getName().empty())
-               {
-                  std::cerr << "Geode name: \"" << p->_geode->getName() << "\""
-                            << std::endl;
-               }
-               if (p->_drawable.valid())
-               {
-                  std::cerr << "Drawable class name: \""
-                            << p->_drawable->className() << "\"" << std::endl;
-               }
-
-               std::cerr << "        local coords vertex(" << p->getLocalIntersectPoint()
-                         << ")" << "  normal(" << p->getLocalIntersectNormal() << ")"
-                         << std::endl;
-
-               std::cerr << "        world coords vertex(" << p->getWorldIntersectPoint()
-                         << ")" << "  normal(" << p->getWorldIntersectNormal() << ")"
-                         << std::endl;
-
-//                osgUtil::Hit::VecIndexList& vil = p->_vecIndexList;
-//                for (unsigned int i = 0; i < vil.size(); ++i)
-//                {
-//                   std::cerr << "        vertex indices [" << i << "] = " << vil[i] << std::endl;
-//                }
-            }
+            handlePushEvent (ea);
             return handleReturnValues_[osgGA::GUIEventAdapter::PUSH];
+         }
+
+         case osgGA::GUIEventAdapter::RELEASE:
+         {
+            handleReleaseEvent (ea);
+            return handleReturnValues_[osgGA::GUIEventAdapter::RELEASE];
          }
 
          default:
@@ -200,6 +176,34 @@ namespace OSGUIsh
             signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(
                ea, currentNodeUnderMouse);
          }
+      }
+   }
+
+
+
+   // - EventHandler::handlePushEvent ------------------------------------------
+   void EventHandler::handlePushEvent (const osgGA::GUIEventAdapter& ea)
+   {
+      // <--- TODO: Bookkeeping, lots of bookkeeping.
+
+      if (nodeUnderMouse_.valid())
+      {
+         signals_[nodeUnderMouse_]["MouseDown"]->operator()(
+            ea, nodeUnderMouse_);
+      }
+   }
+
+
+
+   // - EventHandler::handleReleaseEvent ---------------------------------------
+   void EventHandler::handleReleaseEvent (const osgGA::GUIEventAdapter& ea)
+   {
+      // <--- TODO: Trigger "Click" and "DoubleClick".
+
+      if (nodeUnderMouse_.valid())
+      {
+         signals_[nodeUnderMouse_]["MouseUp"]->operator()(
+            ea, nodeUnderMouse_);
       }
    }
 
