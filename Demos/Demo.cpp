@@ -9,18 +9,29 @@
 #include <OSGUIsh/EventHandler.hpp>
 
 
-class AnEventHandler
-{
-   public:
-      void operator()(osgGA::GUIEventAdapter* ea, std::string nodeName)
-      {
-         std::cout << "Node '" << nodeName << "' just got an event!\n";
-      }
-};
+// class AnEventHandler
+// {
+//    public:
+//       void operator()(osgGA::GUIEventAdapter* ea, std::string nodeName)
+//       {
+//          std::cout << "Node '" << nodeName << "' just got an event!\n";
+//       }
+// };
 
-void HandleAnEvent (osgGA::GUIEventAdapter* ea, std::string nodeName)
+
+void HandleMouseMove (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
 {
-   std::cout << "Node '" << nodeName << "' just got an event!\n";
+   std::cout << "Mouse moved on node '" << node.get() << "'!\n";
+}
+
+void HandleMouseEnter (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+{
+   std::cout << "Entered node '" << node.get() << "'!\n";
+}
+
+void HandleMouseLeave (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+{
+   std::cout << "Leaved node '" << node.get() << "'!\n";
 }
 
 
@@ -49,8 +60,10 @@ int main (int argc, char* argv[])
    viewer.setSceneData (loadedModel.get());
 
    // Register event handlers
-   guishEH->addNode (loadedModel, "Tree");
-   guishEH->getSignal ("Tree", "MouseEnter")->connect (&HandleAnEvent);
+   guishEH->addNode (loadedModel);
+//    guishEH->getSignal (loadedModel, "MouseMove")->connect (&HandleMouseMove);
+   guishEH->getSignal (loadedModel, "MouseEnter")->connect (&HandleMouseEnter);
+   guishEH->getSignal (loadedModel, "MouseLeave")->connect (&HandleMouseLeave);
 
 
    // Enter rendering loop

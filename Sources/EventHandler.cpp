@@ -5,6 +5,7 @@
 \******************************************************************************/
 
 #include "OSGUIsh/EventHandler.hpp"
+#include <boost/lexical_cast.hpp>
 #include <osg/io_utils>
 
 
@@ -29,18 +30,41 @@ namespace OSGUIsh
             hitList_.clear();
             viewer_.computeIntersections (ea.getX(), ea.getY(), hitList_);
 
+            osg::ref_ptr<osg::Node> currentNodeUnderMouse;
             if (hitList_.size() > 0)
             {
-               osg::ref_ptr<osg::Node> nodeUnderMouse =
-                  getAddedNode (hitList_[0].getNodePath());
+                currentNodeUnderMouse = getAddedNode (hitList_[0].getNodePath());
 
-               assert (signals_.find(nodeUnderMouse) != signals_.end()
+               assert (signals_.find(currentNodeUnderMouse) != signals_.end()
                        && "'getAddedNode()' returned an invalid value!");
+            }
 
-//                if (nodeUnderMouse != nodeUnderMouse_)
-//                {
-//                   if (nodeUnderMouse_.valid() ....)
-//                }
+            osg::ref_ptr<osg::Node> prevNodeUnderMouse = nodeUnderMouse_;
+
+            nodeUnderMouse_ = currentNodeUnderMouse;
+
+            if (currentNodeUnderMouse == prevNodeUnderMouse)
+            {
+               // <--- TODO: Don't know the node name...
+               // <--- TODO: Must check if the position changed, too.
+               if (prevNodeUnderMouse.valid())
+                  signals_[currentNodeUnderMouse]["MouseMove"]->operator()(ea, currentNodeUnderMouse);
+            }
+            else // currentNodeUnderMouse != prevNodeUnderMouse
+            {
+               if (!currentNodeUnderMouse.valid())
+               {
+                  signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(ea, prevNodeUnderMouse);
+               }
+               else if (!prevNodeUnderMouse.valid())
+               {
+                  signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(ea, currentNodeUnderMouse);
+               }
+               else // different and non-null
+               {
+                  signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(ea, prevNodeUnderMouse);
+                  signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(ea, currentNodeUnderMouse);
+               }
             }
 
             return handleReturnValues_[osgGA::GUIEventAdapter::FRAME];
@@ -92,11 +116,8 @@ namespace OSGUIsh
 
 
    // - EventHandler::addNode --------------------------------------------------
-   void EventHandler::addNode (osg::ref_ptr<osg::Node> node,
-                               const std::string& nodeName)
+   void EventHandler::addNode (const osg::ref_ptr<osg::Node> node)
    {
-      nodesByName_[nodeName] = node;
-
 #     define OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT) \
          signals_[node][#EVENT] = SignalPtr (new EventHandler::Signal_t());
 
@@ -118,27 +139,29 @@ namespace OSGUIsh
 
    // - EventHandler::getSignal ------------------------------------------------
    EventHandler::SignalPtr EventHandler::getSignal(
-      const std::string& nodeName, const std::string& eventName)
+      const NodePtr node, const std::string& signal)
    {
-      NodesByNameMap_t::const_iterator node = nodesByName_.find (nodeName);
+       SignalsMap_t::const_iterator signalsCollectionIter =
+          signals_.find (node);
 
-      if (node == nodesByName_.end())
+      if (signalsCollectionIter == signals_.end())
       {
          throw std::runtime_error(
-            ("Trying to get a signal of an unknown node: '" + nodeName
-             + "'.").c_str());
+            ("Trying to get a signal of an unknown node: '" + node->getName()
+             + "' (" + boost::lexical_cast<std::string>(node.get())
+             + ").").c_str());
       }
 
-      NameToSignalMap_t::iterator signal =
-         signals_[node->second].find (eventName);
+      SignalCollection_t::const_iterator signalIter =
+         signalsCollectionIter->second.find (signal);
 
-      if (signal == signals_[node->second].end())
+      if (signalIter == signalsCollectionIter->second.end())
       {
          throw std::runtime_error (("Trying to get an unknown signal: '"
-                                    + eventName + "'.").c_str());
+                                    + signal + "'.").c_str());
       }
 
-      return signal->second;
+      return signalIter->second;
    }
 
 
