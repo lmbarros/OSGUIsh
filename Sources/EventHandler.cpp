@@ -33,10 +33,10 @@ namespace OSGUIsh
             osg::ref_ptr<osg::Node> currentNodeUnderMouse;
             if (hitList_.size() > 0)
             {
-                currentNodeUnderMouse = getAddedNode (hitList_[0].getNodePath());
+                currentNodeUnderMouse = getObservedNode (hitList_[0].getNodePath());
 
                assert (signals_.find(currentNodeUnderMouse) != signals_.end()
-                       && "'getAddedNode()' returned an invalid value!");
+                       && "'getObservedNode()' returned an invalid value!");
             }
 
             osg::ref_ptr<osg::Node> prevNodeUnderMouse = nodeUnderMouse_;
@@ -166,9 +166,9 @@ namespace OSGUIsh
 
 
 
-   // - EventHandler::getAddedNode ---------------------------------------------
+   // - EventHandler::getObservedNode ------------------------------------------
    osg::ref_ptr<osg::Node>
-   EventHandler::getAddedNode (const osg::NodePath& nodePath)
+   EventHandler::getObservedNode (const osg::NodePath& nodePath)
    {
       typedef osg::NodePath::const_iterator iter_t;
       typedef osg::ref_ptr<osg::Node> nodePtr;

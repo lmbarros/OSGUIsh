@@ -19,7 +19,11 @@ namespace OSGUIsh
    typedef osg::ref_ptr<osg::Node> NodePtr;
 
 
-   /// An event handler providing GUI-like events for nodes.
+   /** An event handler providing GUI-like events for nodes. The \c EventHandler
+    *  has an internal list of nodes being "observed". Every observed node has a
+    *  collection of signals associated to it. These signals represent the
+    *  events that can be generated for the node.
+    */
    class EventHandler: public osgGA::GUIEventHandler
    {
       public:
@@ -29,9 +33,11 @@ namespace OSGUIsh
           */
          EventHandler (osgProducer::Viewer& viewer);
 
-         /// Handle upcoming events (overloads virtual method).
-         bool
-         handle (const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter&);
+         /** Handle upcoming events (overloads virtual method).
+          *  @return See \c handleReturnValues_ please.
+          */
+         bool handle (const osgGA::GUIEventAdapter& ea,
+                      osgGA::GUIActionAdapter&);
 
          /** A type representing a signal used in OSGUIsh. This signal returns
           *  nothing and takes two parameters: the \c osgGA::GUIEventAdapter
@@ -44,8 +50,9 @@ namespace OSGUIsh
          /// A (smart) pointer to a \c Signal_t;
          typedef boost::shared_ptr<Signal_t> SignalPtr;
 
-         /** Put a node under vigilance of this \c EventHandler, that is, make
-          *  it capable of triggering OSGUIsh signals.
+         /** Adds a given node to the list of nodes being "observed" by this
+          *  \c EventHandler. In other words, signals for this node will be
+          *  triggered from this call on.
           *  @param node The node that will be added to this \c EventHandler.
           */
          void addNode (const NodePtr node);
@@ -64,24 +71,36 @@ namespace OSGUIsh
          SignalPtr getSignal (const NodePtr node, const std::string& signal);
 
       private:
+         /** Returns the first node in an \c osg::NodePath that is present in the
+          *  list of nodes being "observed" by this \c EventHandler. This is
+          *  necessary in the cases in which the user is picking a node that is
+          *  child of an added node. That's the case, for instance, of when the
+          *  user adds a node read from a 3D model file returned by
+          *  \c osgDB::readNodeFile().
+          *  @param nodePath The node path leading to the node being queried.
+          *  @returns The first in \c nodePath that as added to the list of
+          *           nodes being observed.
+          *  @todo The node path is being traversed from begin to end. Shouldn't
+          *        it be the opposite?
+          */
+         NodePtr getObservedNode (const osg::NodePath& nodePath);
 
-         // Goes up the nodepath until finding a registered node. Returns null
-         // if couldn't find any. BAD FUNCTION NAME!
-         NodePtr getAddedNode (const osg::NodePath& nodePath);
-
+         /// The viewer viewing the nodes.
          osgProducer::Viewer& viewer_;
 
+         /** The list of nodes under the mouse pointer. This includes \e all
+          *  nodes under the mouse, not only the nodes being observed by this
+          *  \c EventHandler.
+          */
          osgUtil::IntersectVisitor::HitList hitList_;
 
-         /** @todo Make the return value of \c handle() configurable "per event
-          *        type". For example: "please return \c false when a \c PUSH
-          *        event happens (even if it is handled). So far, this is
-          *        uninitialized, so \c false is always returned.
+         /** The values to be returned by the \c handle() method, depending on
+          *  the event type it is handling. Values are not initialized, meaning
+          *  that \c handle(), by default, returns \c false for all event types.
+          *  @todo Implement a method like \c setHandleReturnValue(), so that
+          *        the user can configure this.
           */
          std::map <osgGA::GUIEventAdapter::EventType, bool> handleReturnValues_;
-
-         // maps name to node
-         typedef std::map <std::string, NodePtr> NodesByNameMap_t;
 
          /// Type mapping a signal name to the signal object.
          typedef std::map <std::string, SignalPtr> SignalCollection_t;
