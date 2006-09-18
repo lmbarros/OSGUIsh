@@ -36,6 +36,11 @@ namespace OSGUIsh
 
 
       private:
+
+         // Goes up the nodepath until finding a registered node. Returns null
+         // if couldn't find any. BAD FUNCTION NAME!
+         osg::ref_ptr<osg::Node> getAddedNode (const osg::NodePath& nodePath);
+
          osgProducer::Viewer& viewer_;
 
          osgUtil::IntersectVisitor::HitList hitList_;
@@ -61,7 +66,7 @@ namespace OSGUIsh
 
          SignalsMap_t signals_;
 
-         osg::ref_ptr<osg::Node> focusedNode_;
+         osg::ref_ptr<osg::Node> nodeUnderMouse_;
    };
 
 } // namespace OSGUIsh

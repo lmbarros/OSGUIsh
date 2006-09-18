@@ -28,6 +28,21 @@ namespace OSGUIsh
          {
             hitList_.clear();
             viewer_.computeIntersections (ea.getX(), ea.getY(), hitList_);
+
+            if (hitList_.size() > 0)
+            {
+               osg::ref_ptr<osg::Node> nodeUnderMouse =
+                  getAddedNode (hitList_[0].getNodePath());
+
+               assert (signals_.find(nodeUnderMouse) != signals_.end()
+                       && "'getAddedNode()' returned an invalid value!");
+
+//                if (nodeUnderMouse != nodeUnderMouse_)
+//                {
+//                   if (nodeUnderMouse_.valid() ....)
+//                }
+            }
+
             return handleReturnValues_[osgGA::GUIEventAdapter::FRAME];
          }
 
@@ -124,6 +139,23 @@ namespace OSGUIsh
       }
 
       return signal->second;
+   }
+
+
+
+   // - EventHandler::getAddedNode ---------------------------------------------
+   osg::ref_ptr<osg::Node>
+   EventHandler::getAddedNode (const osg::NodePath& nodePath)
+   {
+      typedef osg::NodePath::const_iterator iter_t;
+      typedef osg::ref_ptr<osg::Node> nodePtr;
+      for (iter_t p = nodePath.begin(); p != nodePath.end(); ++p)
+      {
+         if (signals_.find (nodePtr(*p)) != signals_.end())
+            return nodePtr(*p);
+      }
+
+      return nodePtr();
    }
 
 
