@@ -70,6 +70,12 @@ namespace OSGUIsh
           */
          SignalPtr getSignal (const NodePtr node, const std::string& signal);
 
+         /// Sets the node that will receive keyboard events.
+         void setKeyboardFocus (const NodePtr node);
+
+         /// Sets the node that will receive mouse wheel events.
+         void setMouseWheelFocus (const NodePtr node);
+
       private:
          /** Returns the first node in an \c osg::NodePath that is present in the
           *  list of nodes being "observed" by this \c EventHandler. This is
@@ -146,6 +152,37 @@ namespace OSGUIsh
           *  \c nodeUnderMouse_ currently under the mouse pointer.
           */
          osg::Vec3 positionUnderMouse_;
+
+         //
+         // For "Click" and "DoubleClick"
+         //
+
+         /// The buttons of a mouse.
+         enum MouseButton
+         {
+            LEFT_MOUSE_BUTTON,   //< The left button.
+            MIDDLE_MOUSE_BUTTON, //< The middle button.
+            RIGHT_MOUSE_BUTTON,  //< The right button.
+            MOUSE_BUTTON_COUNT   //< The number of buttons in a mouse.
+         };
+
+         NodePtr nodeThatGotMouseDown_[MOUSE_BUTTON_COUNT];
+         NodePtr nodeThatGotClick_[MOUSE_BUTTON_COUNT];
+         double timeOfLastClick_[MOUSE_BUTTON_COUNT];
+
+         //
+         // For "KeyUp" and "KeyDown"
+         //
+
+         /// The node receiving keyboard events.
+         NodePtr keyboardFocus_;
+
+         //
+         // For "MouseWheelUp" and "MouseWheelDown"
+         //
+
+         /// The node receiving mouse wheel events.
+         NodePtr mouseWheelFocus_;
    };
 
 } // namespace OSGUIsh

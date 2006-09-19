@@ -34,6 +34,16 @@ void HandleMouseUp (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
    std::cout << "Mouse up on node '" << node.get() << "'!\n";
 }
 
+void HandleClick (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+{
+   std::cout << "Click on node '" << node.get() << "'!\n";
+}
+
+void HandleDoubleClick (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+{
+   std::cout << "Double click on node '" << node.get() << "'!\n";
+}
+
 
 
 // - main ----------------------------------------------------------------------
@@ -66,6 +76,8 @@ int main (int argc, char* argv[])
    guishEH->getSignal (loadedModel, "MouseLeave")->connect (&HandleMouseLeave);
    guishEH->getSignal (loadedModel, "MouseDown")->connect (&HandleMouseDown);
    guishEH->getSignal (loadedModel, "MouseUp")->connect (&HandleMouseUp);
+   guishEH->getSignal (loadedModel, "Click")->connect (&HandleClick);
+   guishEH->getSignal (loadedModel, "DoubleClick")->connect (&HandleDoubleClick);
 
    // Enter rendering loop
    viewer.realize();

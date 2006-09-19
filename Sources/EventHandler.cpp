@@ -17,6 +17,13 @@ namespace OSGUIsh
       : viewer_(viewer)
    {
       addNode (NodePtr());
+
+      for (int i = 0; i < MOUSE_BUTTON_COUNT; ++i)
+      {
+         nodeThatGotMouseDown_[i] = NodePtr();
+         nodeThatGotClick_[i] = NodePtr();
+         timeOfLastClick_[i] = -1.0;
+      }
    }
 
 
@@ -105,6 +112,22 @@ namespace OSGUIsh
 
 
 
+   // - EventHandler::setKeyboardFocus -----------------------------------------
+   void EventHandler::setKeyboardFocus (const NodePtr node)
+   {
+      keyboardFocus_ = node;
+   }
+
+
+
+   // - EventHandler::setMouseWheelFocus ---------------------------------------
+   void EventHandler::setMouseWheelFocus (const NodePtr node)
+   {
+      mouseWheelFocus_ = node;
+   }
+
+
+
    // - EventHandler::getObservedNode ------------------------------------------
    osg::ref_ptr<osg::Node>
    EventHandler::getObservedNode (const osg::NodePath& nodePath)
@@ -184,13 +207,15 @@ namespace OSGUIsh
    // - EventHandler::handlePushEvent ------------------------------------------
    void EventHandler::handlePushEvent (const osgGA::GUIEventAdapter& ea)
    {
-      // <--- TODO: Bookkeeping, lots of bookkeeping.
-
+      // Trigger a "MouseDown" signal.
       if (nodeUnderMouse_.valid())
       {
          signals_[nodeUnderMouse_]["MouseDown"]->operator()(
             ea, nodeUnderMouse_);
       }
+
+      // Do the bookkeeping for "Click" and "DoubleClick"
+      
    }
 
 
