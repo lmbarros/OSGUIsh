@@ -1,7 +1,6 @@
 /******************************************************************************\
 * FocusPolicy.cpp                                                              *
-* An interface used to implement different policies for changing focus from    *
-* one node to another.                                                         *
+* Interface for policies used to change the focus from one node to another.    *
 * Leandro Motta Barros                                                         *
 \******************************************************************************/
 

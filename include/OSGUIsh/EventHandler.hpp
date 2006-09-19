@@ -7,7 +7,6 @@
 #ifndef _GUISH_EVENT_HANDLER_HPP_
 #define _GUISH_EVENT_HANDLER_HPP_
 
-
 #include <boost/signal.hpp>
 #include <osgProducer/Viewer>
 #include <OSGUIsh/FocusPolicy.hpp>
@@ -27,18 +26,18 @@ namespace OSGUIsh
          /** Constructs an \c EventHandler.
           *  @param viewer The viewer used to view the scene graph. This used
           *         for calling its \c computeIntersections() method.
-          *  @param keyboardPolicyFactory The factory that will be used to
-          *         create the \c FocusPolicy used to automatically set the
-          *         focus for keyboard events.
-          *  @param mouseWheelPolicyFactory  The factory that will be used to
-          *         create the \c FocusPolicy used to automatically set the
-          *         focus for mouse wheel events.
+          *  @param kbdPolicyFactory The factory that will be used to create the
+          *         \c FocusPolicy used to automatically set the focus for
+          *         keyboard events.
+          *  @param wheelPolicyFactory The factory that will be used to create
+          *         the \c FocusPolicy used to automatically set the focus for
+          *         mouse wheel events.
           */
          EventHandler (osgProducer::Viewer& viewer,
-                       const FocusPolicyFactory& keyboardPolicyFactory =
-                       ConcreteFocusPolicyFactory<ManualFocusPolicy>(),
-                       const FocusPolicyFactory& mouseWheelPolicyFactory =
-                       ConcreteFocusPolicyFactory<ManualFocusPolicy>());
+                       const FocusPolicyFactory& kbdPolicyFactory =
+                       FocusPolicyFactoryMason<ManualFocusPolicy>(),
+                       const FocusPolicyFactory& wheelPolicyFactory =
+                       FocusPolicyFactoryMason<ManualFocusPolicy>());
 
          /** Handle upcoming events (overloads virtual method).
           *  @return See \c handleReturnValues_ please.
@@ -219,18 +218,18 @@ namespace OSGUIsh
          //
 
          /// The node receiving keyboard events.
-         NodePtr keyboardFocus_;
+         NodePtr kbdFocus_;
 
-         FocusPolicyPtr keyboardFocusPolicy_;
+         FocusPolicyPtr kbdFocusPolicy_;
 
          //
          // For "MouseWheelUp" and "MouseWheelDown"
          //
 
          /// The node receiving mouse wheel events.
-         NodePtr mouseWheelFocus_;
+         NodePtr wheelFocus_;
 
-         FocusPolicyPtr mouseWheelFocusPolicy_;
+         FocusPolicyPtr wheelFocusPolicy_;
    };
 
 } // namespace OSGUIsh

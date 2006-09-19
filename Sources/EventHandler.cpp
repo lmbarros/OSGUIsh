@@ -15,11 +15,11 @@ namespace OSGUIsh
    // - EventHandler::EventHandler ---------------------------------------------
    EventHandler::EventHandler(
       osgProducer::Viewer& viewer,
-      const FocusPolicyFactory& keyboardPolicyFactory,
-      const FocusPolicyFactory& mouseWheelPolicyFactory)
+      const FocusPolicyFactory& kbdPolicyFactory,
+      const FocusPolicyFactory& wheelPolicyFactory)
       : viewer_(viewer),
-        keyboardFocusPolicy_(keyboardPolicyFactory.create (keyboardFocus_)),
-        mouseWheelFocusPolicy_(mouseWheelPolicyFactory.create (mouseWheelFocus_))
+        kbdFocusPolicy_(kbdPolicyFactory.create (kbdFocus_)),
+        wheelFocusPolicy_(wheelPolicyFactory.create (wheelFocus_))
    {
       addNode (NodePtr());
 
@@ -79,8 +79,8 @@ namespace OSGUIsh
             return false;
       }
 
-      mouseWheelFocusPolicy_->updateFocus (ea, nodeUnderMouse_);
-      keyboardFocusPolicy_->updateFocus (ea, nodeUnderMouse_);
+      kbdFocusPolicy_->updateFocus (ea, nodeUnderMouse_);
+      wheelFocusPolicy_->updateFocus (ea, nodeUnderMouse_);
 
       return handleReturnValues_[ea.getEventType()];
    }
@@ -141,7 +141,7 @@ namespace OSGUIsh
    // - EventHandler::setKeyboardFocus -----------------------------------------
    void EventHandler::setKeyboardFocus (const NodePtr node)
    {
-      keyboardFocus_ = node;
+      kbdFocus_ = node;
    }
 
 
@@ -149,7 +149,7 @@ namespace OSGUIsh
    // - EventHandler::setMouseWheelFocus ---------------------------------------
    void EventHandler::setMouseWheelFocus (const NodePtr node)
    {
-      mouseWheelFocus_ = node;
+      wheelFocus_ = node;
    }
 
 
@@ -286,7 +286,7 @@ namespace OSGUIsh
    // - EventHandler::handleKeyDownEvent ---------------------------------------
    void EventHandler::handleKeyDownEvent (const osgGA::GUIEventAdapter& ea)
    {
-      signals_[keyboardFocus_]["KeyDown"]->operator()(ea, keyboardFocus_);
+      signals_[kbdFocus_]["KeyDown"]->operator()(ea, kbdFocus_);
    }
 
 
@@ -294,7 +294,7 @@ namespace OSGUIsh
    // - EventHandler::handleKeyUpEvent -----------------------------------------
    void EventHandler::handleKeyUpEvent (const osgGA::GUIEventAdapter& ea)
    {
-      signals_[keyboardFocus_]["KeyUp"]->operator()(ea, keyboardFocus_);
+      signals_[kbdFocus_]["KeyUp"]->operator()(ea, kbdFocus_);
    }
 
 
@@ -306,15 +306,13 @@ namespace OSGUIsh
       {
          case osgGA::GUIEventAdapter::SCROLL_UP:
          {
-            signals_[mouseWheelFocus_]["MouseWheelUp"]->operator()(
-               ea, mouseWheelFocus_);
+            signals_[wheelFocus_]["MouseWheelUp"]->operator()(ea, wheelFocus_);
             break;
          }
 
          case osgGA::GUIEventAdapter::SCROLL_DOWN:
          {
-            signals_[mouseWheelFocus_]["MouseWheelDown"]->operator()(
-               ea, mouseWheelFocus_);
+            signals_[wheelFocus_]["MouseWheelDown"]->operator()(ea, wheelFocus_);
             break;
          }
 
@@ -342,6 +340,5 @@ namespace OSGUIsh
          }
       }
    }
-
 
 } // namespace OSGUIsh
