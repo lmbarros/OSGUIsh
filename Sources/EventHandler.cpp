@@ -215,7 +215,8 @@ namespace OSGUIsh
       }
 
       // Do the bookkeeping for "Click" and "DoubleClick"
-      
+      MouseButton button = getMouseButton (ea);
+      nodeThatGotMouseDown_[button] = nodeUnderMouse_;
    }
 
 
@@ -223,13 +224,58 @@ namespace OSGUIsh
    // - EventHandler::handleReleaseEvent ---------------------------------------
    void EventHandler::handleReleaseEvent (const osgGA::GUIEventAdapter& ea)
    {
-      // <--- TODO: Trigger "Click" and "DoubleClick".
+      const double DOUBLE_CLICK_INTERVAL = 0.3;
 
       if (nodeUnderMouse_.valid())
       {
+         MouseButton button = getMouseButton (ea);
+
+         // First the trivial case: the "MouseUp" event
          signals_[nodeUnderMouse_]["MouseUp"]->operator()(
             ea, nodeUnderMouse_);
+
+         // Now, the trickier ones: "Click" and "DoubleClick"
+         if (nodeUnderMouse_ == nodeThatGotMouseDown_[button])
+         {
+            signals_[nodeUnderMouse_]["Click"]->operator()(
+               ea, nodeUnderMouse_);
+
+            const double now = ea.getTime();
+
+            if (now - timeOfLastClick_[button] < DOUBLE_CLICK_INTERVAL
+                && nodeUnderMouse_ == nodeThatGotClick_[button])
+            {
+               signals_[nodeUnderMouse_]["DoubleClick"]->operator()(
+                  ea, nodeUnderMouse_);
+            }
+
+            nodeThatGotClick_[button] = nodeUnderMouse_;
+            timeOfLastClick_[button] = now;
+         }
       }
    }
+
+
+
+   // - EventHandler::getMouseButton -------------------------------------------
+   EventHandler::MouseButton EventHandler::getMouseButton(
+      const osgGA::GUIEventAdapter& ea)
+   {
+      switch (ea.getButton())
+      {
+         case osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON:
+            return LEFT_MOUSE_BUTTON;
+         case osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON:
+            return MIDDLE_MOUSE_BUTTON;
+         case osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON:
+            return RIGHT_MOUSE_BUTTON;
+         default:
+         {
+            assert (false && "Got an invalid mouse button code. Is 'ea' really "
+                    "a mouse event?");
+         }
+      }
+   }
+
 
 } // namespace OSGUIsh

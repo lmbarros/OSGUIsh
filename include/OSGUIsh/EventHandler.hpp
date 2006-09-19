@@ -160,14 +160,33 @@ namespace OSGUIsh
          /// The buttons of a mouse.
          enum MouseButton
          {
-            LEFT_MOUSE_BUTTON,   //< The left button.
-            MIDDLE_MOUSE_BUTTON, //< The middle button.
-            RIGHT_MOUSE_BUTTON,  //< The right button.
-            MOUSE_BUTTON_COUNT   //< The number of buttons in a mouse.
+            LEFT_MOUSE_BUTTON,   ///< The left button.
+            MIDDLE_MOUSE_BUTTON, ///< The middle button.
+            RIGHT_MOUSE_BUTTON,  ///< The right button.
+            MOUSE_BUTTON_COUNT   ///< The number of buttons in a mouse.
          };
 
+         /** Returns the mouse button used in the \c osgGA::GUIEventAdapter
+          *  passed as parameter.
+          */
+         MouseButton getMouseButton (const osgGA::GUIEventAdapter& ea);
+
+         /** An array indicating (for every mouse button) which was the node
+          *  that received the last mouse down event. This is used to identify
+          *  clicks.
+          */
          NodePtr nodeThatGotMouseDown_[MOUSE_BUTTON_COUNT];
+
+         /** An array indicating (for every mouse button) which was the node
+          *  that received the last click event. This is used to identify double
+          *  clicks.
+          */
          NodePtr nodeThatGotClick_[MOUSE_BUTTON_COUNT];
+
+         /** An array indicating (for every mouse button) the time at which the
+          *  last click event has happened. This is used to identify double
+          *  clicks.
+          */
          double timeOfLastClick_[MOUSE_BUTTON_COUNT];
 
          //
