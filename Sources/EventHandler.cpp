@@ -13,8 +13,13 @@ namespace OSGUIsh
 {
 
    // - EventHandler::EventHandler ---------------------------------------------
-   EventHandler::EventHandler (osgProducer::Viewer& viewer)
-      : viewer_(viewer)
+   EventHandler::EventHandler(
+      osgProducer::Viewer& viewer,
+      const FocusPolicyFactory& keyboardPolicyFactory,
+      const FocusPolicyFactory& mouseWheelPolicyFactory)
+      : viewer_(viewer),
+        keyboardFocusPolicy_(keyboardPolicyFactory.create (keyboardFocus_)),
+        mouseWheelFocusPolicy_(mouseWheelPolicyFactory.create (mouseWheelFocus_))
    {
       addNode (NodePtr());
 
@@ -74,7 +79,10 @@ namespace OSGUIsh
             return false;
       }
 
-      return false;
+      mouseWheelFocusPolicy_->updateFocus (ea, nodeUnderMouse_);
+      keyboardFocusPolicy_->updateFocus (ea, nodeUnderMouse_);
+
+      return handleReturnValues_[ea.getEventType()];
    }
 
 

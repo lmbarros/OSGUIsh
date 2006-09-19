@@ -10,15 +10,12 @@
 
 #include <boost/signal.hpp>
 #include <osgProducer/Viewer>
+#include <OSGUIsh/FocusPolicy.hpp>
+#include <OSGUIsh/ManualFocusPolicy.hpp>
 
 
 namespace OSGUIsh
 {
-
-   /// A (smart) pointer to a scene graph node.
-   typedef osg::ref_ptr<osg::Node> NodePtr;
-
-
    /** An event handler providing GUI-like events for nodes. The \c EventHandler
     *  has an internal list of nodes being "observed". Every observed node has a
     *  collection of signals associated to it. These signals represent the
@@ -30,8 +27,18 @@ namespace OSGUIsh
          /** Constructs an \c EventHandler.
           *  @param viewer The viewer used to view the scene graph. This used
           *         for calling its \c computeIntersections() method.
+          *  @param keyboardPolicyFactory The factory that will be used to
+          *         create the \c FocusPolicy used to automatically set the
+          *         focus for keyboard events.
+          *  @param mouseWheelPolicyFactory  The factory that will be used to
+          *         create the \c FocusPolicy used to automatically set the
+          *         focus for mouse wheel events.
           */
-         EventHandler (osgProducer::Viewer& viewer);
+         EventHandler (osgProducer::Viewer& viewer,
+                       const FocusPolicyFactory& keyboardPolicyFactory =
+                       ConcreteFocusPolicyFactory<ManualFocusPolicy>(),
+                       const FocusPolicyFactory& mouseWheelPolicyFactory =
+                       ConcreteFocusPolicyFactory<ManualFocusPolicy>());
 
          /** Handle upcoming events (overloads virtual method).
           *  @return See \c handleReturnValues_ please.
@@ -214,12 +221,16 @@ namespace OSGUIsh
          /// The node receiving keyboard events.
          NodePtr keyboardFocus_;
 
+         FocusPolicyPtr keyboardFocusPolicy_;
+
          //
          // For "MouseWheelUp" and "MouseWheelDown"
          //
 
          /// The node receiving mouse wheel events.
          NodePtr mouseWheelFocus_;
+
+         FocusPolicyPtr mouseWheelFocusPolicy_;
    };
 
 } // namespace OSGUIsh

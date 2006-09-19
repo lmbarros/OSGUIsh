@@ -85,7 +85,9 @@ envDemos = envBase.Copy (LIBS = [ "OSGUIsh", "osg", "z", "osgProducer",
 #  The build targets
 #  The things that are actually built.
 # ------------------------------------------------------------------------------
-theStaticLib = envLib.Library ("lib/OSGUIsh", [ "Sources/EventHandler.cpp" ])
+theStaticLib = envLib.Library ("lib/OSGUIsh", [ "Sources/EventHandler.cpp",
+                                                "Sources/FocusPolicy.cpp",
+                                                "Sources/ManualFocusPolicy.cpp" ])
 
 envDemos.Program ("Demos/Demo", "Demos/Demo.cpp")
 
