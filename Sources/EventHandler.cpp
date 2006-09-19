@@ -52,6 +52,24 @@ namespace OSGUIsh
             return handleReturnValues_[osgGA::GUIEventAdapter::RELEASE];
          }
 
+         case osgGA::GUIEventAdapter::KEYDOWN:
+         {
+            handleKeyDownEvent (ea);
+            return handleReturnValues_[osgGA::GUIEventAdapter::KEYDOWN];
+         }
+
+         case osgGA::GUIEventAdapter::KEYUP:
+         {
+            handleKeyUpEvent (ea);
+            return handleReturnValues_[osgGA::GUIEventAdapter::KEYUP];
+         }
+
+         case osgGA::GUIEventAdapter::SCROLL:
+         {
+            handleScrollEvent (ea);
+            return handleReturnValues_[osgGA::GUIEventAdapter::SCROLL];
+         }
+
          default:
             return false;
       }
@@ -256,6 +274,46 @@ namespace OSGUIsh
    }
 
 
+
+   // - EventHandler::handleKeyDownEvent ---------------------------------------
+   void EventHandler::handleKeyDownEvent (const osgGA::GUIEventAdapter& ea)
+   {
+      signals_[keyboardFocus_]["KeyDown"]->operator()(ea, keyboardFocus_);
+   }
+
+
+
+   // - EventHandler::handleKeyUpEvent -----------------------------------------
+   void EventHandler::handleKeyUpEvent (const osgGA::GUIEventAdapter& ea)
+   {
+      signals_[keyboardFocus_]["KeyUp"]->operator()(ea, keyboardFocus_);
+   }
+
+
+
+   // - EventHandler::handleScrollEvent ----------------------------------------
+   void EventHandler::handleScrollEvent (const osgGA::GUIEventAdapter& ea)
+   {
+      switch (ea.getScrollingMotion())
+      {
+         case osgGA::GUIEventAdapter::SCROLL_UP:
+         {
+            signals_[mouseWheelFocus_]["MouseWheelUp"]->operator()(
+               ea, mouseWheelFocus_);
+            break;
+         }
+
+         case osgGA::GUIEventAdapter::SCROLL_DOWN:
+         {
+            signals_[mouseWheelFocus_]["MouseWheelDown"]->operator()(
+               ea, mouseWheelFocus_);
+            break;
+         }
+
+         default:
+            break; // ignore other events
+      }
+   }
 
    // - EventHandler::getMouseButton -------------------------------------------
    EventHandler::MouseButton EventHandler::getMouseButton(
