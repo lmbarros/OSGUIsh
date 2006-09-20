@@ -87,7 +87,9 @@ envDemos = envBase.Copy (LIBS = [ "OSGUIsh", "osg", "z", "osgProducer",
 # ------------------------------------------------------------------------------
 theStaticLib = envLib.Library ("lib/OSGUIsh", [ "Sources/EventHandler.cpp",
                                                 "Sources/FocusPolicy.cpp",
-                                                "Sources/ManualFocusPolicy.cpp" ])
+                                                "Sources/ManualFocusPolicy.cpp",
+                                                "Sources/MouseDownFocusPolicy.cpp",
+                                                "Sources/MouseOverFocusPolicy.cpp" ])
 
 envDemos.Program ("Demos/Demo", "Demos/Demo.cpp")
 
