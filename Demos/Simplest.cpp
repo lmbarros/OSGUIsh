@@ -1,6 +1,6 @@
 /******************************************************************************\
-* Demo.cpp                                                                     *
-* OSGUIsh demo.                                                                *
+* Simplest.cpp                                                                 *
+* The simplest OSGUIsh demo.                                                   *
 * Leandro Motta Barros                                                         *
 \******************************************************************************/
 
@@ -8,6 +8,9 @@
 #include <osgProducer/Viewer>
 #include <OSGUIsh/EventHandler.hpp>
 
+//
+// The event handlers
+//
 
 void HandleMouseMove (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
 {
@@ -89,9 +92,10 @@ int main (int argc, char* argv[])
 
    viewer.setSceneData (loadedModel.get());
 
-   // Register event handlers
+   // Adds the node to the event handler, so that it can get events
    guishEH->addNode (loadedModel);
-
+ 
+   // Register event handlers
    guishEH->getSignal (loadedModel, "MouseMove")->connect (&HandleMouseMove);
    guishEH->getSignal (loadedModel, "MouseEnter")->connect (&HandleMouseEnter);
    guishEH->getSignal (loadedModel, "MouseLeave")->connect (&HandleMouseLeave);
@@ -99,18 +103,19 @@ int main (int argc, char* argv[])
    guishEH->getSignal (loadedModel, "MouseUp")->connect (&HandleMouseUp);
    guishEH->getSignal (loadedModel, "Click")->connect (&HandleClick);
    guishEH->getSignal (loadedModel, "DoubleClick")->connect (&HandleDoubleClick);
-
-   guishEH->setKeyboardFocus (loadedModel);
    guishEH->getSignal (loadedModel, "KeyDown")->connect (&HandleKeyDown);
    guishEH->getSignal (loadedModel, "KeyUp")->connect (&HandleKeyUp);
-
-   guishEH->setMouseWheelFocus (loadedModel);
    guishEH->getSignal (loadedModel, "MouseWheelUp")->connect (&HandleMouseWheelUp);
    guishEH->getSignal (loadedModel, "MouseWheelDown")->connect (&HandleMouseWheelDown);
 
-   // Enter rendering loop
+   // Set the receivers of keyboard and mouse wheel events
+   guishEH->setKeyboardFocus (loadedModel);
+   guishEH->setMouseWheelFocus (loadedModel);
+
+   // An OpenGL window, please
    viewer.realize();
 
+   // Enter rendering loop
    while (!viewer.done())
    {
       viewer.sync();
