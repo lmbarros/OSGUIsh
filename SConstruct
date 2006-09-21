@@ -92,6 +92,7 @@ theStaticLib = envLib.Library ("lib/OSGUIsh", [ "Sources/EventHandler.cpp",
                                                 "Sources/MouseOverFocusPolicy.cpp" ])
 
 envDemos.Program ("Demos/Simplest", "Demos/Simplest.cpp")
+envDemos.Program ("Demos/ThreeObjects", "Demos/ThreeObjects.cpp")
 
 
 # --------------------------------------------------------------------
