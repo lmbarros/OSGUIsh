@@ -4,9 +4,11 @@
 * Leandro Motta Barros                                                         *
 \******************************************************************************/
 
+#include <osg/MatrixTransform>
 #include <osg/PositionAttitudeTransform>
 #include <osgDB/ReadFile>
 #include <osgProducer/Viewer>
+#include <osgText/Text>
 #include <OSGUIsh/EventHandler.hpp>
 
 //
@@ -17,7 +19,7 @@ OSGUIsh::NodePtr NodeUnderMouse;
 osg::ref_ptr<osg::Node> TreeNode;;
 osg::ref_ptr<osg::Node> StrawberryNode;
 osg::ref_ptr<osg::Node> FishNode;
-
+osg::ref_ptr<osgText::Text> TextMouseOver;
 
 //
 // The event handlers
@@ -25,12 +27,12 @@ osg::ref_ptr<osg::Node> FishNode;
 
 void HandleMouseEnter (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
 {
-   std::cout << "Entered node '" << node->getName() << "'!\n";
+   TextMouseOver->setText ("Mouse over " + node->getName());
 }
 
 void HandleMouseLeave (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
 {
-   std::cout << "Left node '" << node->getName() << "'!\n";
+   TextMouseOver->setText ("Mouse over nothing vegetable!");
 }
 
 void HandleDoubleClickTree (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
@@ -41,6 +43,41 @@ void HandleDoubleClickTree (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr n
 void HandleDoubleClickStrawberry (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
 {
    std::cout << "Double click on Strawberry!\n";
+}
+
+
+
+// - CreateHUD -----------------------------------------------------------------
+osg::ref_ptr<osg::Projection> CreateHUD (int width, int height)
+{
+   // Create the text nodes to be displayed on the HUD
+   osg::ref_ptr<osg::Geode> hudGeometry (new osg::Geode());
+
+   TextMouseOver = new osgText::Text;
+   TextMouseOver->setText ("Mouse over nothing vegetable!");
+   TextMouseOver->setFont ("Data/bluehigl.ttf");
+   TextMouseOver->setPosition (osg::Vec3 (10.0f, 10.0f, 0.0f));
+   TextMouseOver->setCharacterSize (50.0);
+
+   hudGeometry->addDrawable (TextMouseOver.get());
+
+   // Create the HUD per se
+   osg::ref_ptr<osg::StateSet> stateSet = hudGeometry->getOrCreateStateSet();
+   stateSet->setMode (GL_LIGHTING, osg::StateAttribute::OFF);
+   stateSet->setMode (GL_DEPTH_TEST, osg::StateAttribute::OFF);
+   stateSet->setRenderBinDetails (11, "RenderBin");
+
+   osg::ref_ptr<osg::MatrixTransform> modelviewAbs (new osg::MatrixTransform);
+   modelviewAbs->setReferenceFrame (osg::Transform::ABSOLUTE_RF);
+   modelviewAbs->setMatrix (osg::Matrix::identity());
+
+   modelviewAbs->addChild (hudGeometry.get());
+
+   osg::ref_ptr<osg::Projection> projection (new osg::Projection());
+   projection->setMatrix (osg::Matrix::ortho2D (0, width, 0, height));
+   projection->addChild (modelviewAbs.get());
+
+   return projection;
 }
 
 
@@ -103,8 +140,11 @@ int main (int argc, char* argv[])
 
    viewer.getEventHandlerList().push_front (guishEH.get());
 
-   // Load the models, set them as the data to be viewed
-   viewer.setSceneData (LoadModels().get());
+   // Construct the scene graph, set it as the data to be viewed
+   osg::ref_ptr<osg::Group> sgRoot = LoadModels().get();
+   sgRoot->addChild (CreateHUD (1024, 768).get());
+   viewer.setSceneData (sgRoot.get());
+
 
    // Adds the node to the event handler, so that it can get events
    guishEH->addNode (TreeNode);
