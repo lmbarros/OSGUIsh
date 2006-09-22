@@ -10,7 +10,11 @@ windowed mode (instead of full-screen) in order to be able to see the
 terminal.
 
 ThreeObjects:
-Show three objects. Two of them (the tree and the strawberry) have
+Shows three objects. Two of them (the tree and the strawberry) have
 events associated to them. Both share the event handlers for
 "MouseEnter" and "MouseLeave". They also have handlers for
 double-click events (though, these are not shared).
+
+FocusPolicies:
+Allows to test the different focus policies for mouse wheel and
+keyboard events.

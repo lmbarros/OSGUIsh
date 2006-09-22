@@ -93,6 +93,7 @@ theStaticLib = envLib.Library ("lib/OSGUIsh", [ "Sources/EventHandler.cpp",
 
 envDemos.Program ("Demos/Simplest", "Demos/Simplest.cpp")
 envDemos.Program ("Demos/ThreeObjects", "Demos/ThreeObjects.cpp")
+envDemos.Program ("Demos/FocusPolicies", "Demos/FocusPolicies.cpp")
 
 
 # --------------------------------------------------------------------
