@@ -40,43 +40,31 @@ namespace OSGUIsh
       switch (ea.getEventType())
       {
          case osgGA::GUIEventAdapter::FRAME:
-         {
             handleFrameEvent (ea);
-            return handleReturnValues_[osgGA::GUIEventAdapter::FRAME];
-         }
+            break;
 
          case osgGA::GUIEventAdapter::PUSH:
-         {
             handlePushEvent (ea);
-            return handleReturnValues_[osgGA::GUIEventAdapter::PUSH];
-         }
+            break;
 
          case osgGA::GUIEventAdapter::RELEASE:
-         {
             handleReleaseEvent (ea);
-            return handleReturnValues_[osgGA::GUIEventAdapter::RELEASE];
-         }
+            break;
 
          case osgGA::GUIEventAdapter::KEYDOWN:
-         {
             handleKeyDownEvent (ea);
-            return handleReturnValues_[osgGA::GUIEventAdapter::KEYDOWN];
-         }
+            break;
 
          case osgGA::GUIEventAdapter::KEYUP:
-         {
             handleKeyUpEvent (ea);
-            return handleReturnValues_[osgGA::GUIEventAdapter::KEYUP];
-         }
+            break;
 
          case osgGA::GUIEventAdapter::SCROLL:
-         {
             handleScrollEvent (ea);
-            return handleReturnValues_[osgGA::GUIEventAdapter::SCROLL];
-         }
+            break;
 
          default:
-            return false;
+            break;
       }
 
       kbdFocusPolicy_->updateFocus (ea, nodeUnderMouse_);
