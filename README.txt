@@ -17,4 +17,5 @@ double-click events (though, these are not shared).
 
 FocusPolicies:
 Allows to test the different focus policies for mouse wheel and
-keyboard events.
+keyboard events. Use 'k' to change the keyboard focus policy, and 'm'
+to change the mouse wheel focus policy.

@@ -14,18 +14,35 @@
 #include <OSGUIsh/MouseDownFocusPolicy.hpp>
 
 //
+// The available focus policies
+//
+enum FocusPolicy
+{
+   ManualFocusPolicy,
+   MouseOverFocusPolicy,
+   MouseDownFocusPolicy
+};
+
+
+
+//
 // Some globals (globals are not a problem in simple examples ;-))
 //
-
 OSGUIsh::NodePtr NodeUnderMouse;
+
 osg::ref_ptr<osg::Node> TreeNode;
 osg::ref_ptr<osg::Node> StrawberryNode;
 osg::ref_ptr<osg::Node> FishNode;
 osg::ref_ptr<osgText::Text> TextMouseOver;
 osg::ref_ptr<osgText::Text> TextMouseWheelEvent;
 osg::ref_ptr<osgText::Text> TextKeyboardEvent;
-osg::ref_ptr<osgText::Text> TextMouseWheelFocusPolicy;
 osg::ref_ptr<osgText::Text> TextKeyboardFocusPolicy;
+osg::ref_ptr<osgText::Text> TextMouseWheelFocusPolicy;
+
+FocusPolicy KeyboardFocusPolicy = ManualFocusPolicy;
+FocusPolicy MouseWheelFocusPolicy = ManualFocusPolicy;
+
+
 
 //
 // The event handlers
@@ -65,6 +82,78 @@ void HandleKeyUp (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
 
 
 
+//
+// ChangePolicyEventHandler
+//
+class ChangePolicyEventHandler: public osgGA::GUIEventHandler
+{
+   public:
+      ChangePolicyEventHandler (osg::ref_ptr<OSGUIsh::EventHandler> eh)
+         : eh_(eh)
+      { }
+
+      virtual bool handle (const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter&)
+      {
+         if (ea.getEventType() == osgGA::GUIEventAdapter::KEYDOWN)
+         {
+            if (ea.getKey() == 'm' || ea.getKey() == 'M')
+            {
+               switch (MouseWheelFocusPolicy)
+               {
+                  case ManualFocusPolicy:
+                     eh_->setMouseWheelFocusPolicy(
+                        OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::MouseOverFocusPolicy>());
+                     MouseWheelFocusPolicy = MouseOverFocusPolicy;
+                     TextMouseWheelFocusPolicy->setText ("Mouse wheel focus policy: mouse over sets focus");
+                     break;
+                  case MouseOverFocusPolicy:
+                     eh_->setMouseWheelFocusPolicy(
+                        OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::MouseDownFocusPolicy>());
+                     MouseWheelFocusPolicy = MouseDownFocusPolicy;
+                     TextMouseWheelFocusPolicy->setText ("Mouse wheel focus policy: mouse down sets focus");
+                     break;
+                  case MouseDownFocusPolicy:
+                     eh_->setMouseWheelFocusPolicy(
+                        OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::ManualFocusPolicy>());
+                     TextMouseWheelFocusPolicy->setText ("Mouse wheel focus policy: manual focus change (don't change focus)");
+                     MouseWheelFocusPolicy = ManualFocusPolicy;
+                     break;
+               }
+            }
+            else if (ea.getKey() == 'k' || ea.getKey() == 'K')
+            {
+               switch (KeyboardFocusPolicy)
+               {
+                  case ManualFocusPolicy:
+                     eh_->setKeyboardFocusPolicy(
+                        OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::MouseOverFocusPolicy>());
+                     KeyboardFocusPolicy = MouseOverFocusPolicy;
+                     TextKeyboardFocusPolicy->setText ("Keyboard focus policy: mouse over sets focus");
+                     break;
+                  case MouseOverFocusPolicy:
+                     eh_->setKeyboardFocusPolicy(
+                        OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::MouseDownFocusPolicy>());
+                     KeyboardFocusPolicy = MouseDownFocusPolicy;
+                     TextKeyboardFocusPolicy->setText ("Keyboard focus policy: mouse down sets focus");
+                     break;
+                  case MouseDownFocusPolicy:
+                     eh_->setKeyboardFocusPolicy(
+                        OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::ManualFocusPolicy>());
+                     KeyboardFocusPolicy = ManualFocusPolicy;
+                     TextKeyboardFocusPolicy->setText ("Keyboard focus policy: manual focus change (don't change focus)");
+                     break;
+               }
+            }
+         }
+         return false;
+      }
+
+   private:
+      osg::ref_ptr<OSGUIsh::EventHandler> eh_;
+};
+
+
+
 // - CreateHUD -----------------------------------------------------------------
 osg::ref_ptr<osg::Projection> CreateHUD (int width, int height)
 {
@@ -93,14 +182,14 @@ osg::ref_ptr<osg::Projection> CreateHUD (int width, int height)
    hudGeometry->addDrawable (TextKeyboardEvent.get());
 
    TextMouseWheelFocusPolicy = new osgText::Text;
-   TextMouseWheelFocusPolicy->setText ("Mouse wheel focus policy");
+   TextMouseWheelFocusPolicy->setText ("Mouse wheel focus policy: mouse down sets focus");
    TextMouseWheelFocusPolicy->setFont ("Data/bluehigl.ttf");
    TextMouseWheelFocusPolicy->setPosition (osg::Vec3 (10.0f, 100.0f, 0.0f));
    TextMouseWheelFocusPolicy->setCharacterSize (25.0);
    hudGeometry->addDrawable (TextMouseWheelFocusPolicy.get());
 
    TextKeyboardFocusPolicy = new osgText::Text;
-   TextKeyboardFocusPolicy->setText ("Keyboard focus policy");
+   TextKeyboardFocusPolicy->setText ("Keyboard focus policy: mouse over sets focus");
    TextKeyboardFocusPolicy->setFont ("Data/bluehigl.ttf");
    TextKeyboardFocusPolicy->setPosition (osg::Vec3 (10.0f, 130.0f, 0.0f));
    TextKeyboardFocusPolicy->setCharacterSize (25.0);
@@ -188,6 +277,11 @@ int main (int argc, char* argv[])
          OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::MouseDownFocusPolicy>()));
 
    viewer.getEventHandlerList().push_front (guishEH.get());
+
+   osg::ref_ptr<ChangePolicyEventHandler> focusPolicyEH(
+      new ChangePolicyEventHandler (guishEH));
+
+   viewer.getEventHandlerList().push_front (focusPolicyEH.get());
 
    // Construct the scene graph, set it as the data to be viewed
    osg::ref_ptr<osg::Group> sgRoot = LoadModels().get();
