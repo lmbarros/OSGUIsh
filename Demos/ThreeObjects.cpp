@@ -16,10 +16,11 @@
 //
 
 OSGUIsh::NodePtr NodeUnderMouse;
-osg::ref_ptr<osg::Node> TreeNode;;
+osg::ref_ptr<osg::Node> TreeNode;
 osg::ref_ptr<osg::Node> StrawberryNode;
 osg::ref_ptr<osg::Node> FishNode;
 osg::ref_ptr<osgText::Text> TextMouseOver;
+osg::ref_ptr<osgText::Text> TextDoubleClicked;
 
 //
 // The event handlers
@@ -35,14 +36,14 @@ void HandleMouseLeave (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
    TextMouseOver->setText ("Mouse over nothing vegetable!");
 }
 
-void HandleDoubleClickTree (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleDoubleClickTree (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr std)
 {
-   std::cout << "Double click on Tree!\n";
+   TextDoubleClicked->setText ("Just a tree, not three!");
 }
 
 void HandleDoubleClickStrawberry (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
 {
-   std::cout << "Double click on Strawberry!\n";
+   TextDoubleClicked->setText ("A lone, field-less strawberry.");
 }
 
 
@@ -57,9 +58,15 @@ osg::ref_ptr<osg::Projection> CreateHUD (int width, int height)
    TextMouseOver->setText ("Mouse over nothing vegetable!");
    TextMouseOver->setFont ("Data/bluehigl.ttf");
    TextMouseOver->setPosition (osg::Vec3 (10.0f, 10.0f, 0.0f));
-   TextMouseOver->setCharacterSize (50.0);
-
+   TextMouseOver->setCharacterSize (25.0);
    hudGeometry->addDrawable (TextMouseOver.get());
+
+   TextDoubleClicked = new osgText::Text;
+   TextDoubleClicked->setText ("Try double clicking vegetables!");
+   TextDoubleClicked->setFont ("Data/bluehigl.ttf");
+   TextDoubleClicked->setPosition (osg::Vec3 (10.0f, 40.0f, 0.0f));
+   TextDoubleClicked->setCharacterSize (25.0);
+   hudGeometry->addDrawable (TextDoubleClicked.get());
 
    // Create the HUD per se
    osg::ref_ptr<osg::StateSet> stateSet = hudGeometry->getOrCreateStateSet();
@@ -126,6 +133,7 @@ osg::ref_ptr<osg::Group> LoadModels()
 
    return group;
 }
+
 
 
 // - main ----------------------------------------------------------------------
