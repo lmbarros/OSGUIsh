@@ -82,6 +82,18 @@ namespace OSGUIsh
          /// Sets the node that will receive mouse wheel events.
          void setMouseWheelFocus (const NodePtr node);
 
+         /** Sets the focus policy for keyboard events to a given one.
+          *  @param policyFactory The factory that will be used to create the
+          *         actual policy.
+          */
+         void setKeyboardFocusPolicy (const FocusPolicyFactory& policyFactory);
+
+         /** Sets the focus policy for mouse wheel events to a given one.
+          *  @param policyFactory The factory that will be used to create the
+          *         actual policy.
+          */
+         void setMouseWheelFocusPolicy (const FocusPolicyFactory& policyFactory);
+
       private:
          /** Returns the first node in an \c osg::NodePath that is present in the
           *  list of nodes being "observed" by this \c EventHandler. This is

@@ -142,6 +142,24 @@ namespace OSGUIsh
 
 
 
+   // - EventHandler::setKeyboardFocusPolicy -----------------------------------
+   void EventHandler::setKeyboardFocusPolicy(
+      const FocusPolicyFactory& policyFactory)
+   {
+      kbdFocusPolicy_ = policyFactory.create (kbdFocus_);
+   }
+
+
+
+   // - EventHandler::setMouseWheelFocusPolicy ---------------------------------
+   void EventHandler::setMouseWheelFocusPolicy(
+      const FocusPolicyFactory& policyFactory)
+   {
+      wheelFocusPolicy_ = policyFactory.create (wheelFocus_);
+   }
+
+
+
    // - EventHandler::getObservedNode ------------------------------------------
    osg::ref_ptr<osg::Node>
    EventHandler::getObservedNode (const osg::NodePath& nodePath)
