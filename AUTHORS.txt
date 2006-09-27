@@ -1,2 +1,2 @@
-By Leandro Motta Barros.
-
+Diluculum was designed, implemented and is maintained by Leandro Motta
+Barros.

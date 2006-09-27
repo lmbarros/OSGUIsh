@@ -101,7 +101,7 @@ envDemos.Program ("Demos/FocusPolicies", "Demos/FocusPolicies.cpp")
 # --------------------------------------------------------------------
 import glob
 headerFiles = glob.glob ("include/OSGUIsh/*.hpp")
-shareFiles = [ "AUTHORS.txt" ]
+shareFiles = [ "AUTHORS.txt", "COPYING.txt", "DEMOS.txt", "README.txt" ]
 
 envBase.Alias ("install", envBase.Install (os.path.join (prefix, "lib"), theStaticLib))
 envBase.Alias ("install", envBase.Install (os.path.join (prefix, "include", "OSGUIsh"), headerFiles))

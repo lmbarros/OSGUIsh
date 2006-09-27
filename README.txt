@@ -1,21 +1,12 @@
+OSGUIsh is a library that generates GUI-like events from nodes in an
+OSG scene graph. So, a programmer can install callbacks that are
+executed when the mouse moves over a node, or when it is clicked, or
+double-clicked, or the mouse wheel moves, or... you got the idea.
 
+It still lacks an User's Guide, but I think the demos are simple
+enough to show its usage. Also, OSGUIsh is in very early stages of
+development, so it can change quite a lot in future releases.
 
- DEMOS
-~~~~~~~
-Simplest:
-A quite simple example on how to use OSGUIsh. Has handlers for all
-supported events, and jus prints messages in the terminal saying which
-events are arriving. Please hit "f" to make the program run in
-windowed mode (instead of full-screen) in order to be able to see the
-terminal.
+Enjoy it, if you can, ;-)
 
-ThreeObjects:
-Shows three objects. Two of them (the tree and the strawberry) have
-events associated to them. Both share the event handlers for
-"MouseEnter" and "MouseLeave". They also have handlers for
-double-click events (though, these are not shared).
-
-FocusPolicies:
-Allows to test the different focus policies for mouse wheel and
-keyboard events. Use 'k' to change the keyboard focus policy, and 'm'
-to change the mouse wheel focus policy.
+Leandro Motta Barros
