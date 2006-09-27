@@ -1,7 +1,13 @@
 /******************************************************************************\
 * EventHandler.hpp                                                             *
 * An event handler providing GUI-like events                                   *
-* Leandro Motta Barros                                                         *
+*                                                                              *
+*                                                                              *
+* Copyright (C) 2006 by Leandro Motta Barros.                                  *
+*                                                                              *
+* This program is distributed under the OpenSceneGraph Public License. You     *
+* should have received a copy of it with the source distribution, in a file    *
+* named 'COPYING.txt'.                                                         *
 \******************************************************************************/
 
 #ifndef _GUISH_EVENT_HANDLER_HPP_
