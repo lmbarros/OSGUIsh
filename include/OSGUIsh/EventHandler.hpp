@@ -230,6 +230,7 @@ namespace OSGUIsh
          /// The node receiving keyboard events.
          NodePtr kbdFocus_;
 
+         /// The focus policy for keyboard-related events.
          FocusPolicyPtr kbdFocusPolicy_;
 
          //
@@ -239,6 +240,7 @@ namespace OSGUIsh
          /// The node receiving mouse wheel events.
          NodePtr wheelFocus_;
 
+         /// The focus policy for mouse wheel-related events.
          FocusPolicyPtr wheelFocusPolicy_;
    };
 
