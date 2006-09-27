@@ -104,8 +104,6 @@ namespace OSGUIsh
           *  @param nodePath The node path leading to the node being queried.
           *  @returns The first in \c nodePath that as added to the list of
           *           nodes being observed.
-          *  @todo The node path is being traversed from begin to end. Shouldn't
-          *        it be the opposite?
           */
          NodePtr getObservedNode (const osg::NodePath& nodePath);
 
