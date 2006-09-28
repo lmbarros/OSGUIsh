@@ -184,19 +184,19 @@ namespace OSGUIsh
    void EventHandler::handleFrameEvent (const osgGA::GUIEventAdapter& ea)
    {
       // Find out who is, and who was under the mouse pointer
-      hitList_.clear();
-      viewer_.computeIntersections (ea.getX(), ea.getY(), hitList_);
+      osgUtil::IntersectVisitor::HitList hitList;
+      viewer_.computeIntersections (ea.getX(), ea.getY(), hitList);
 
       NodePtr currentNodeUnderMouse;
       osg::Vec3 currentPositionUnderMouse;
 
-      if (hitList_.size() > 0)
+      if (hitList.size() > 0)
       {
-         currentNodeUnderMouse = getObservedNode (hitList_[0].getNodePath());
+         currentNodeUnderMouse = getObservedNode (hitList[0].getNodePath());
          assert (signals_.find (currentNodeUnderMouse) != signals_.end()
                  && "'getObservedNode()' returned an invalid value!");
 
-         currentPositionUnderMouse = hitList_[0].getLocalIntersectPoint();
+         currentPositionUnderMouse = hitList[0].getLocalIntersectPoint();
       }
 
       NodePtr prevNodeUnderMouse = nodeUnderMouse_;

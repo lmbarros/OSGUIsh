@@ -155,12 +155,6 @@ namespace OSGUIsh
          /// The viewer viewing the nodes.
          osgProducer::Viewer& viewer_;
 
-         /** The list of nodes under the mouse pointer. This includes \e all
-          *  nodes under the mouse, not only the nodes being observed by this
-          *  \c EventHandler.
-          */
-         osgUtil::IntersectVisitor::HitList hitList_;
-
          /** The values to be returned by the \c handle() method, depending on
           *  the event type it is handling. Values are not initialized, meaning
           *  that \c handle(), by default, returns \c false for all event types.
