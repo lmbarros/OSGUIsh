@@ -82,6 +82,15 @@ namespace OSGUIsh
           */
          SignalPtr getSignal (const NodePtr node, const std::string& signal);
 
+         /** Ignores or stops to ignore faces that are back-facing the viewer
+          *  when picking. It may be useful to ignore back faces when backface
+          *  culling is enabled.
+          *  @param ignore If \c true, back faces will be ignored when picking.
+          *         If \c false, back faces will be considered when piking.
+          */
+         void ignoreBackFaces (bool ignore = true)
+         { ignoreBackFaces_ = ignore; }
+
          /// Sets the node that will receive keyboard events.
          void setKeyboardFocus (const NodePtr node);
 
@@ -154,6 +163,11 @@ namespace OSGUIsh
 
          /// The viewer viewing the nodes.
          osgProducer::Viewer& viewer_;
+
+         /** If this is \c true, faces back-facing the viewer will be ignored
+          *  while picking.
+          */
+         bool ignoreBackFaces_;
 
          /** The values to be returned by the \c handle() method, depending on
           *  the event type it is handling. Values are not initialized, meaning

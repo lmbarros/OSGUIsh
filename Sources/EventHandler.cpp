@@ -22,7 +22,7 @@ namespace OSGUIsh
       osgProducer::Viewer& viewer,
       const FocusPolicyFactory& kbdPolicyFactory,
       const FocusPolicyFactory& wheelPolicyFactory)
-      : viewer_(viewer),
+      : viewer_(viewer), ignoreBackFaces_(false),
         kbdFocusPolicy_(kbdPolicyFactory.create (kbdFocus_)),
         wheelFocusPolicy_(wheelPolicyFactory.create (wheelFocus_))
    {
@@ -192,11 +192,38 @@ namespace OSGUIsh
 
       if (hitList.size() > 0)
       {
-         currentNodeUnderMouse = getObservedNode (hitList[0].getNodePath());
-         assert (signals_.find (currentNodeUnderMouse) != signals_.end()
-                 && "'getObservedNode()' returned an invalid value!");
+         typedef osgUtil::IntersectVisitor::HitList::const_iterator hl_iter_t;
+         hl_iter_t theHit = hitList.end();
 
-         currentPositionUnderMouse = hitList[0].getLocalIntersectPoint();
+         if (ignoreBackFaces_)
+         {
+            for (hl_iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
+            {
+               osg::Vec3 localVec = hit->getLocalLineSegment()->end()
+                  - hit->getLocalLineSegment()->start();
+               localVec.normalize();
+
+               const bool frontFacing =
+                  localVec * hit->getLocalIntersectNormal() < 0.0;
+
+               if (frontFacing)
+               {
+                  theHit = hit;
+                  break;
+               }
+            }
+         }
+         else // !ignoreBackFaces_
+            theHit = hitList.begin();
+
+         if (theHit != hitList.end())
+         {
+            currentNodeUnderMouse = getObservedNode (theHit->getNodePath());
+            assert (signals_.find (currentNodeUnderMouse) != signals_.end()
+                    && "'getObservedNode()' returned an invalid value!");
+
+            currentPositionUnderMouse = theHit->getLocalIntersectPoint();
+         }
       }
 
       NodePtr prevNodeUnderMouse = nodeUnderMouse_;
