@@ -217,20 +217,14 @@ namespace OSGUIsh
       }
       else // currentNodeUnderMouse != prevNodeUnderMouse
       {
-         if (!currentNodeUnderMouse.valid())
+         if (prevNodeUnderMouse.valid())
          {
             signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(
                ea, prevNodeUnderMouse);
          }
-         else if (!prevNodeUnderMouse.valid())
+
+         if (currentNodeUnderMouse.valid())
          {
-            signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(
-               ea, currentNodeUnderMouse);
-         }
-         else // different and both are valid
-         {
-            signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(
-               ea, prevNodeUnderMouse);
             signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(
                ea, currentNodeUnderMouse);
          }
