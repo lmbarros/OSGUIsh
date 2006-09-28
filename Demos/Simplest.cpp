@@ -94,7 +94,7 @@ int main (int argc, char* argv[])
 
    // Adds the node to the event handler, so that it can get events
    guishEH->addNode (loadedModel);
- 
+
    // Register event handlers
    guishEH->getSignal (loadedModel, "MouseMove")->connect (&HandleMouseMove);
    guishEH->getSignal (loadedModel, "MouseEnter")->connect (&HandleMouseEnter);
