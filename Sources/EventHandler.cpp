@@ -12,7 +12,6 @@
 
 #include "OSGUIsh/EventHandler.hpp"
 #include <boost/lexical_cast.hpp>
-#include <osg/io_utils>
 
 
 namespace OSGUIsh
