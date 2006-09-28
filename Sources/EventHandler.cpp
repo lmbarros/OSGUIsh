@@ -168,8 +168,8 @@ namespace OSGUIsh
    // - EventHandler::getObservedNode ------------------------------------------
    NodePtr EventHandler::getObservedNode (const osg::NodePath& nodePath)
    {
-      typedef osg::NodePath::const_iterator iter_t;
-      for (iter_t p = nodePath.begin(); p != nodePath.end(); ++p)
+      typedef osg::NodePath::const_reverse_iterator iter_t;
+      for (iter_t p = nodePath.rbegin(); p != nodePath.rend(); ++p)
       {
          if (signals_.find (NodePtr(*p)) != signals_.end())
             return NodePtr(*p);
