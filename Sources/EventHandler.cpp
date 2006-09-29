@@ -185,7 +185,8 @@ namespace OSGUIsh
    {
       // Find out who is, and who was under the mouse pointer
       osgUtil::IntersectVisitor::HitList hitList;
-      viewer_.computeIntersections (ea.getX(), ea.getY(), hitList);
+      viewer_.computeIntersections (ea.getXnormalized(), ea.getYnormalized(),
+                                    hitList);
 
       NodePtr currentNodeUnderMouse;
       osg::Vec3 currentPositionUnderMouse;
