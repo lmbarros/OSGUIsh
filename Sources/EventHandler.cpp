@@ -224,6 +224,8 @@ namespace OSGUIsh
                     && "'getObservedNode()' returned an invalid value!");
 
             currentPositionUnderMouse = theHit->getLocalIntersectPoint();
+
+            hitUnderMouse_ = *theHit;
          }
       }
 
@@ -240,7 +242,7 @@ namespace OSGUIsh
              && currentPositionUnderMouse != prevPositionUnderMouse)
          {
             signals_[currentNodeUnderMouse]["MouseMove"]->operator()(
-               ea, currentNodeUnderMouse);
+               currentNodeUnderMouse, ea, hitUnderMouse_);
          }
       }
       else // currentNodeUnderMouse != prevNodeUnderMouse
@@ -248,13 +250,13 @@ namespace OSGUIsh
          if (prevNodeUnderMouse.valid())
          {
             signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(
-               ea, prevNodeUnderMouse);
+               prevNodeUnderMouse, ea, hitUnderMouse_);
          }
 
          if (currentNodeUnderMouse.valid())
          {
             signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(
-               ea, currentNodeUnderMouse);
+               currentNodeUnderMouse, ea, hitUnderMouse_);
          }
       }
    }
@@ -268,7 +270,7 @@ namespace OSGUIsh
       if (nodeUnderMouse_.valid())
       {
          signals_[nodeUnderMouse_]["MouseDown"]->operator()(
-            ea, nodeUnderMouse_);
+            nodeUnderMouse_, ea, hitUnderMouse_);
       }
 
       // Do the bookkeeping for "Click" and "DoubleClick"
@@ -289,13 +291,13 @@ namespace OSGUIsh
 
          // First the trivial case: the "MouseUp" event
          signals_[nodeUnderMouse_]["MouseUp"]->operator()(
-            ea, nodeUnderMouse_);
+            nodeUnderMouse_, ea, hitUnderMouse_);
 
          // Now, the trickier ones: "Click" and "DoubleClick"
          if (nodeUnderMouse_ == nodeThatGotMouseDown_[button])
          {
             signals_[nodeUnderMouse_]["Click"]->operator()(
-               ea, nodeUnderMouse_);
+               nodeUnderMouse_, ea, hitUnderMouse_);
 
             const double now = ea.getTime();
 
@@ -303,7 +305,7 @@ namespace OSGUIsh
                 && nodeUnderMouse_ == nodeThatGotClick_[button])
             {
                signals_[nodeUnderMouse_]["DoubleClick"]->operator()(
-                  ea, nodeUnderMouse_);
+                  nodeUnderMouse_, ea, hitUnderMouse_);
             }
 
             nodeThatGotClick_[button] = nodeUnderMouse_;
@@ -317,7 +319,7 @@ namespace OSGUIsh
    // - EventHandler::handleKeyDownEvent ---------------------------------------
    void EventHandler::handleKeyDownEvent (const osgGA::GUIEventAdapter& ea)
    {
-      signals_[kbdFocus_]["KeyDown"]->operator()(ea, kbdFocus_);
+      signals_[kbdFocus_]["KeyDown"]->operator()(kbdFocus_, ea, hitUnderMouse_);
    }
 
 
@@ -325,7 +327,7 @@ namespace OSGUIsh
    // - EventHandler::handleKeyUpEvent -----------------------------------------
    void EventHandler::handleKeyUpEvent (const osgGA::GUIEventAdapter& ea)
    {
-      signals_[kbdFocus_]["KeyUp"]->operator()(ea, kbdFocus_);
+      signals_[kbdFocus_]["KeyUp"]->operator()(kbdFocus_, ea, hitUnderMouse_);
    }
 
 
@@ -337,13 +339,15 @@ namespace OSGUIsh
       {
          case osgGA::GUIEventAdapter::SCROLL_UP:
          {
-            signals_[wheelFocus_]["MouseWheelUp"]->operator()(ea, wheelFocus_);
+            signals_[wheelFocus_]["MouseWheelUp"]->operator()(wheelFocus_, ea,
+                                                              hitUnderMouse_);
             break;
          }
 
          case osgGA::GUIEventAdapter::SCROLL_DOWN:
          {
-            signals_[wheelFocus_]["MouseWheelDown"]->operator()(ea, wheelFocus_);
+            signals_[wheelFocus_]["MouseWheelDown"]->operator()(wheelFocus_, ea,
+                                                                hitUnderMouse_);
             break;
          }
 

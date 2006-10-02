@@ -52,12 +52,23 @@ namespace OSGUIsh
                       osgGA::GUIActionAdapter&);
 
          /** A type representing a signal used in OSGUIsh. This signal returns
-          *  nothing and takes two parameters: the \c osgGA::GUIEventAdapter
-          *  that generated this event and a pointer to the node receiving the
-          *  event.
+          *  nothing and takes three parameters: a pointer to the node receiving
+          *  the event, the \c osgGA::GUIEventAdapter that generated this event,
+          *  and the \c osgUtil::Hit for the node under the mouse pointer.
+          *  @note Notice that, in some cases, the \c osgUtil::Hit for the node
+          *        under the mouse pointer doesn't really have something to do
+          *        with the event being handled. For example, if the event is a
+          *        <tt>KeyUp</tt> and the focus policy is not the "node under
+          *        mouse has focus" policy, than the hit will not be related to
+          *        the node generating the event.
+          *        <p>Also, in cases like the above, the hit may even be
+          *        invalid, since, perhaps, there will not be any registered
+          *        node under the mouse pointer.
           */
-         typedef boost::signal<void (const osgGA::GUIEventAdapter&,
-                                     NodePtr)> Signal_t;
+         typedef boost::signal<void (NodePtr,
+                                     const osgGA::GUIEventAdapter&,
+                                     const osgUtil::Hit& hit
+                                     )> Signal_t;
 
          /// A (smart) pointer to a \c Signal_t;
          typedef boost::shared_ptr<Signal_t> SignalPtr;
@@ -188,6 +199,11 @@ namespace OSGUIsh
           *  <tt>signals_[node]["MouseMove"]->connect(&MyHandler);</tt>
           */
          SignalsMap_t signals_;
+
+         /** The \c osgUtil::Hit structure for the node currently under the
+          *  mouse pointer. (Respecting the \c ignoreBackFaces_ flag.)
+          */
+         osgUtil::Hit hitUnderMouse_;
 
          //
          // For "MouseEnter", "MouseLeave", "MouseMove"

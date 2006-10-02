@@ -48,33 +48,39 @@ FocusPolicy MouseWheelFocusPolicy = ManualFocusPolicy;
 // The event handlers
 //
 
-void HandleMouseEnter (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleMouseEnter (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                       const osgUtil::Hit& hit)
 {
    TextMouseOver->setText ("Mouse over " + node->getName());
 }
 
-void HandleMouseLeave (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleMouseLeave (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                       const osgUtil::Hit& hit)
 {
    TextMouseOver->setText ("Mouse over nothing!");
 }
 
-void HandleMouseWheelUp (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleMouseWheelUp (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                         const osgUtil::Hit& hit)
 {
    TextMouseWheelEvent->setText (node->getName() + ": Mouse wheel up!");
 }
 
-void HandleMouseWheelDown (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleMouseWheelDown (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                           const osgUtil::Hit& hit)
 {
    TextMouseWheelEvent->setText (node->getName() + ": Mouse wheel down!");
 }
 
-void HandleKeyDown (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleKeyDown (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                    const osgUtil::Hit& hit)
 {
    TextKeyboardEvent->setText (node->getName() + ": key down: "
                                + static_cast<char>(ea.getKey()));
 }
 
-void HandleKeyUp (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleKeyUp (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                  const osgUtil::Hit& hit)
 {
    TextKeyboardEvent->setText (node->getName() + ": key up: "
                                + static_cast<char>(ea.getKey()));

@@ -12,57 +12,70 @@
 // The event handlers
 //
 
-void HandleMouseMove (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleMouseMove (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                      const osgUtil::Hit& hit)
 {
    std::cout << "Mouse moved on node '" << node.get() << "'!\n";
 }
 
-void HandleMouseEnter (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleMouseEnter (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                       const osgUtil::Hit& hit)
 {
    std::cout << "Entered node '" << node.get() << "'!\n";
 }
 
-void HandleMouseLeave (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleMouseLeave (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                       const osgUtil::Hit& hit)
 {
    std::cout << "Left node '" << node.get() << "'!\n";
 }
 
-void HandleMouseDown (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleMouseDown (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                      const osgUtil::Hit& hit)
 {
    std::cout << "Mouse down on node '" << node.get() << "'!\n";
 }
 
-void HandleMouseUp (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleMouseUp (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                    const osgUtil::Hit& hit)
 {
    std::cout << "Mouse up on node '" << node.get() << "'!\n";
 }
 
-void HandleClick (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleClick (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                  const osgUtil::Hit& hit)
 {
    std::cout << "Click on node '" << node.get() << "'!\n";
 }
 
-void HandleDoubleClick (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleDoubleClick (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                        const osgUtil::Hit& hit)
 {
    std::cout << "Double click on node '" << node.get() << "'!\n";
 }
 
-void HandleKeyDown (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleKeyDown (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                    const osgUtil::Hit& hit)
 {
    std::cout << "Key down on node '" << node.get() << "'!\n";
 }
 
-void HandleKeyUp (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleKeyUp (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
+                  const osgUtil::Hit& hit)
 {
    std::cout << "Key up on node '" << node.get() << "'!\n";
 }
 
-void HandleMouseWheelUp (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleMouseWheelUp (OSGUIsh::NodePtr node,
+                         const osgGA::GUIEventAdapter& ea,
+                         const osgUtil::Hit& hit)
 {
    std::cout << "Mouse wheel up on node '" << node.get() << "'!\n";
 }
 
-void HandleMouseWheelDown (const osgGA::GUIEventAdapter& ea, OSGUIsh::NodePtr node)
+void HandleMouseWheelDown (OSGUIsh::NodePtr node,
+                           const osgGA::GUIEventAdapter& ea,
+                           const osgUtil::Hit& hit)
 {
    std::cout << "Mouse wheel down on node '" << node.get() << "'!\n";
 }
