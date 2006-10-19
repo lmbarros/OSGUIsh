@@ -34,5 +34,5 @@ Well, you should :-)
 
 I may provide alternatives in the future (a Makefile, for instance),
 but currently there are no alternatives. Compiling OSGUIsh with your
-favorite building systems should be easy, though: just compile and
+favorite building system should be easy, though: just compile and
 link with all files in the 'Sources' directory.
