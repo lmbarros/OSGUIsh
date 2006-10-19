@@ -45,7 +45,7 @@ namespace OSGUIsh
                        const FocusPolicyFactory& wheelPolicyFactory =
                        FocusPolicyFactoryMason<ManualFocusPolicy>());
 
-         /** Handle upcoming events (overloads virtual method).
+         /** Handles upcoming events (overloads virtual method).
           *  @return See \c handleReturnValues_ please.
           */
          bool handle (const osgGA::GUIEventAdapter& ea,
