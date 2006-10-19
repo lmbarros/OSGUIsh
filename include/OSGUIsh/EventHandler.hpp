@@ -55,6 +55,13 @@ namespace OSGUIsh
           *  nothing and takes three parameters: a pointer to the node receiving
           *  the event, the \c osgGA::GUIEventAdapter that generated this event,
           *  and the \c osgUtil::Hit for the node under the mouse pointer.
+          *  @note Be aware that, in the general case,
+          *        <tt>hit.getNodePath().back() != node</tt>. The hit will
+          *        contain the actual, "low level" hit, while \c node will
+          *        contain the node registered with OSGUish. For instance, if
+          *        you register "car" node, that has a "car body" and four
+          *        "wheels" as subnodes, the \c node will always be the "car",
+          *        while the hit will be the "car body" or one of the "wheels".
           *  @note Notice that, in some cases, the \c osgUtil::Hit for the node
           *        under the mouse pointer doesn't really have something to do
           *        with the event being handled. For example, if the event is a
