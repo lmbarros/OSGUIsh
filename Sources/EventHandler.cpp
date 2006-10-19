@@ -356,6 +356,8 @@ namespace OSGUIsh
       }
    }
 
+
+
    // - EventHandler::getMouseButton -------------------------------------------
    EventHandler::MouseButton EventHandler::getMouseButton(
       const osgGA::GUIEventAdapter& ea)
