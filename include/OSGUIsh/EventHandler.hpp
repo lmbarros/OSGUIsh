@@ -51,6 +51,36 @@ namespace OSGUIsh
          bool handle (const osgGA::GUIEventAdapter& ea,
                       osgGA::GUIActionAdapter&);
 
+         /** Sets the list of root nodes used when picking.
+          *  <p>This deserves some words: when using multiple
+          *  <tt>osg::CameraNode</tt>s (in particular when using HUDs), picking
+          *  in OSG can be problematic. The details of this problem are not
+          *  important here (basically, we don't have control on the relative
+          *  "z-order" of objects in different <tt>CameraNode</tt>s). But it is
+          *  important to know that, if we want to pick objects in different
+          *  camera nodes, we may have some unpredictable results.
+          *  <p>So, what's the solution? Actually, there is no solution. At
+          *  least, not an easy one. So, OSGUIsh uses a list of root nodes when
+          *  picking, as a way to offer some control to its users.
+          *  <p>Suppose, for instance, that you want to pick both in a group of
+          *  objects and in a HUD. By default, OSGUIsh will pick from the root
+          *  of the whole scene (objects and HUD), which (as described above)
+          *  will not work. So, you call \c setPickingRoots() passing two nodes:
+          *  first the HUD, second the group of objects.
+          *  <p>Once you do this, OSGUIsh will start picking in two stages.
+          *  First, it will try picking the HUD. If it hits something in the
+          *  HUD, that hit will be used. If not, OSGUIsh will try picking the
+          *  group of objects.
+          */
+         void setPickingRoots (std::vector<NodePtr> newRoot);
+
+         /** Sets the root used by OSGUIsh when picking.
+          *  @see setPickingRoots for a longer discussion on how OSGUIsh
+          *       performs picking (you can set more than one root, for
+          *       example).
+          */
+         void setPickingRoot (NodePtr newRoot);
+
          /** A type representing a signal used in OSGUIsh. This signal returns
           *  nothing and takes three parameters: a pointer to the node receiving
           *  the event, the \c osgGA::GUIEventAdapter that generated this event,
@@ -186,6 +216,12 @@ namespace OSGUIsh
           *  while picking.
           */
          bool ignoreBackFaces_;
+
+         /** The list of root nodes used when picking.
+          *  @see setPickingRoots for a discussion on how this is used and why
+          *       this is necessary.
+          */
+         std::vector<NodePtr> pickingRoots_;
 
          /** The values to be returned by the \c handle() method, depending on
           *  the event type it is handling. Values are not initialized, meaning

@@ -34,6 +34,10 @@ namespace OSGUIsh
          nodeThatGotClick_[i] = NodePtr();
          timeOfLastClick_[i] = -1.0;
       }
+
+      // By default, use the viewer's scene root as the only root node when
+      // picking
+      pickingRoots_.push_back (viewer_.getSceneData());
    }
 
 
@@ -76,6 +80,24 @@ namespace OSGUIsh
       wheelFocusPolicy_->updateFocus (ea, nodeUnderMouse_);
 
       return handleReturnValues_[ea.getEventType()];
+   }
+
+
+
+   // - EventHandler::setPickingRoots ------------------------------------------
+   void EventHandler::setPickingRoots (std::vector<NodePtr> newRoots)
+   {
+      pickingRoots_ = newRoots;
+   }
+
+
+
+   // - EventHandler::setPickingRoot -------------------------------------------
+   void EventHandler::setPickingRoot (NodePtr newRoot)
+   {
+      std::vector<NodePtr> newRoots;
+      newRoots.push_back (newRoot);
+      setPickingRoots (newRoots);
    }
 
 
@@ -183,51 +205,59 @@ namespace OSGUIsh
    // - EventHandler::handleFrameEvent -----------------------------------------
    void EventHandler::handleFrameEvent (const osgGA::GUIEventAdapter& ea)
    {
-      // Find out who is, and who was under the mouse pointer
-      osgUtil::IntersectVisitor::HitList hitList;
-      viewer_.computeIntersections (ea.getXnormalized(), ea.getYnormalized(),
-                                    hitList);
+      assert (pickingRoots_.size() > 0);
 
+      // Find out who is, and who was under the mouse pointer
       NodePtr currentNodeUnderMouse;
       osg::Vec3 currentPositionUnderMouse;
 
-      if (hitList.size() > 0)
+      typedef std::vector <NodePtr>::iterator iter_t;
+      for (iter_t p = pickingRoots_.begin(); p != pickingRoots_.end(); ++p)
       {
-         typedef osgUtil::IntersectVisitor::HitList::const_iterator hl_iter_t;
-         hl_iter_t theHit = hitList.end();
+         osgUtil::IntersectVisitor::HitList hitList;
+         viewer_.computeIntersections (ea.getXnormalized(), ea.getYnormalized(),
+                                       p->get(), hitList);
 
-         if (ignoreBackFaces_)
+         if (hitList.size() > 0)
          {
-            for (hl_iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
+            typedef osgUtil::IntersectVisitor::HitList::const_iterator hl_iter_t;
+            hl_iter_t theHit = hitList.end();
+
+            if (ignoreBackFaces_)
             {
-               osg::Vec3 localVec = hit->getLocalLineSegment()->end()
-                  - hit->getLocalLineSegment()->start();
-               localVec.normalize();
-
-               const bool frontFacing =
-                  localVec * hit->getLocalIntersectNormal() < 0.0;
-
-               if (frontFacing)
+               for (hl_iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
                {
-                  theHit = hit;
-                  break;
+                  osg::Vec3 localVec = hit->getLocalLineSegment()->end()
+                     - hit->getLocalLineSegment()->start();
+                  localVec.normalize();
+
+                  const bool frontFacing =
+                     localVec * hit->getLocalIntersectNormal() < 0.0;
+
+                  if (frontFacing)
+                  {
+                     theHit = hit;
+                     break;
+                  }
                }
             }
-         }
-         else // !ignoreBackFaces_
-            theHit = hitList.begin();
+            else // !ignoreBackFaces_
+               theHit = hitList.begin();
 
-         if (theHit != hitList.end())
-         {
-            currentNodeUnderMouse = getObservedNode (theHit->getNodePath());
-            assert (signals_.find (currentNodeUnderMouse) != signals_.end()
-                    && "'getObservedNode()' returned an invalid value!");
+            if (theHit != hitList.end())
+            {
+               currentNodeUnderMouse = getObservedNode (theHit->getNodePath());
+               assert (signals_.find (currentNodeUnderMouse) != signals_.end()
+                       && "'getObservedNode()' returned an invalid value!");
 
-            currentPositionUnderMouse = theHit->getLocalIntersectPoint();
+               currentPositionUnderMouse = theHit->getLocalIntersectPoint();
 
-            hitUnderMouse_ = *theHit;
-         }
-      }
+               hitUnderMouse_ = *theHit;
+
+               break;
+            }
+         }  // if (hitList.size() > 0)
+      } // for (...pickingRoots_...)
 
       NodePtr prevNodeUnderMouse = nodeUnderMouse_;
       osg::Vec3 prevPositionUnderMouse = positionUnderMouse_;
