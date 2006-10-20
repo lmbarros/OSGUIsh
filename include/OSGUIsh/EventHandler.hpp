@@ -21,6 +21,52 @@
 
 namespace OSGUIsh
 {
+   /** A \c struct grouping parameters passed to event handlers. Future versions
+    *  of OSGUish may add more members here if necessary without breaking
+    *  existing user code.
+    *  @note Be aware that, in the general case,
+    *        <tt>hit.getNodePath().back() != node.get()</tt>. \c hit contains
+    *        the actual, "low level" hit, while \c node contains the node
+    *        registered with OSGUish. For instance, suppose  you register a
+    *        car node, that has a car body node and four wheel nodes as
+    *        subnodes. \c node will always be the whole car, while \c hit will
+    *        be the "car body" or one of the "wheels".
+    */
+   struct HandlerParams
+   {
+      public:
+         /// Convenience constructor.
+         HandlerParams (NodePtr nodeParam,
+                        const osgGA::GUIEventAdapter& eventParam,
+                        const osgUtil::Hit& hitParam)
+            : node(nodeParam), event(eventParam), hit(hitParam)
+         { }
+
+         /// The node generating the event.
+         NodePtr node;
+
+         /** The event data, as passed by OSG. Here you can find many useful
+          *  information, like "which mouse button was pressed".
+          */
+         const osgGA::GUIEventAdapter& event;
+
+         /** The \c osgUtil::Hit for the node that was under the mouse pointer
+          *  when the event was generated.
+          *  @note Notice that, in some cases, the \c osgUtil::Hit for the node
+          *        under the mouse pointer doesn't really have something to do
+          *        with the event being handled. For example, if the event is a
+          *        <tt>KeyUp</tt> and the focus policy is not the "node under
+          *        mouse has focus" policy, than the hit will not be related to
+          *        the node generating the event.
+          *        <p>Also, in cases like the above, the hit may even be
+          *        invalid, since, perhaps, there will not be any registered
+          *        node under the mouse pointer.
+          */
+         const osgUtil::Hit& hit;
+   };
+
+
+
    /** An event handler providing GUI-like events for nodes. The \c EventHandler
     *  has an internal list of nodes being "observed". Every observed node has a
     *  collection of signals associated to it. These signals represent the
@@ -82,30 +128,10 @@ namespace OSGUIsh
          void setPickingRoot (NodePtr newRoot);
 
          /** A type representing a signal used in OSGUIsh. This signal returns
-          *  nothing and takes three parameters: a pointer to the node receiving
-          *  the event, the \c osgGA::GUIEventAdapter that generated this event,
-          *  and the \c osgUtil::Hit for the node under the mouse pointer.
-          *  @note Be aware that, in the general case,
-          *        <tt>hit.getNodePath().back() != node</tt>. The hit will
-          *        contain the actual, "low level" hit, while \c node will
-          *        contain the node registered with OSGUish. For instance, if
-          *        you register "car" node, that has a "car body" and four
-          *        "wheels" as subnodes, the \c node will always be the "car",
-          *        while the hit will be the "car body" or one of the "wheels".
-          *  @note Notice that, in some cases, the \c osgUtil::Hit for the node
-          *        under the mouse pointer doesn't really have something to do
-          *        with the event being handled. For example, if the event is a
-          *        <tt>KeyUp</tt> and the focus policy is not the "node under
-          *        mouse has focus" policy, than the hit will not be related to
-          *        the node generating the event.
-          *        <p>Also, in cases like the above, the hit may even be
-          *        invalid, since, perhaps, there will not be any registered
-          *        node under the mouse pointer.
+          *  nothing and takes a \c HandlerParams, which packs all relevant data
+          *  for an event handler function.
           */
-         typedef boost::signal<void (NodePtr,
-                                     const osgGA::GUIEventAdapter&,
-                                     const osgUtil::Hit& hit
-                                     )> Signal_t;
+         typedef boost::signal<void (HandlerParams&)> Signal_t;
 
          /// A (smart) pointer to a \c Signal_t;
          typedef boost::shared_ptr<Signal_t> SignalPtr;

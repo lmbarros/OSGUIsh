@@ -48,42 +48,37 @@ FocusPolicy MouseWheelFocusPolicy = ManualFocusPolicy;
 // The event handlers
 //
 
-void HandleMouseEnter (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
-                       const osgUtil::Hit& hit)
+void HandleMouseEnter (OSGUIsh::HandlerParams& params)
 {
-   TextMouseOver->setText ("Mouse over " + node->getName());
+   TextMouseOver->setText ("Mouse over " + params.node->getName());
 }
 
-void HandleMouseLeave (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
-                       const osgUtil::Hit& hit)
+void HandleMouseLeave (OSGUIsh::HandlerParams& params)
 {
    TextMouseOver->setText ("Mouse over nothing!");
 }
 
-void HandleMouseWheelUp (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
-                         const osgUtil::Hit& hit)
+void HandleMouseWheelUp (OSGUIsh::HandlerParams& params)
 {
-   TextMouseWheelEvent->setText (node->getName() + ": Mouse wheel up!");
+   TextMouseWheelEvent->setText (params.node->getName() + ": Mouse wheel up!");
 }
 
-void HandleMouseWheelDown (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
-                           const osgUtil::Hit& hit)
+void HandleMouseWheelDown (OSGUIsh::HandlerParams& params)
 {
-   TextMouseWheelEvent->setText (node->getName() + ": Mouse wheel down!");
+   TextMouseWheelEvent->setText (params.node->getName()
+                                 + ": Mouse wheel down!");
 }
 
-void HandleKeyDown (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
-                    const osgUtil::Hit& hit)
+void HandleKeyDown (OSGUIsh::HandlerParams& params)
 {
-   TextKeyboardEvent->setText (node->getName() + ": key down: "
-                               + static_cast<char>(ea.getKey()));
+   TextKeyboardEvent->setText (params.node->getName() + ": key down: "
+                               + static_cast<char>(params.event.getKey()));
 }
 
-void HandleKeyUp (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
-                  const osgUtil::Hit& hit)
+void HandleKeyUp (OSGUIsh::HandlerParams& params)
 {
-   TextKeyboardEvent->setText (node->getName() + ": key up: "
-                               + static_cast<char>(ea.getKey()));
+   TextKeyboardEvent->setText (params.node->getName() + ": key up: "
+                               + static_cast<char>(params.event.getKey()));
 }
 
 

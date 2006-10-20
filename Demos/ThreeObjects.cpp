@@ -26,26 +26,22 @@ osg::ref_ptr<osgText::Text> TextDoubleClicked;
 // The event handlers
 //
 
-void HandleMouseEnter (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
-                       const osgUtil::Hit& hit)
+void HandleMouseEnter (OSGUIsh::HandlerParams& params)
 {
-   TextMouseOver->setText ("Mouse over " + node->getName());
+   TextMouseOver->setText ("Mouse over " + params.node->getName());
 }
 
-void HandleMouseLeave (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
-                       const osgUtil::Hit& hit)
+void HandleMouseLeave (OSGUIsh::HandlerParams& params)
 {
    TextMouseOver->setText ("Mouse over nothing vegetable!");
 }
 
-void HandleDoubleClickTree (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
-                            const osgUtil::Hit& hit)
+void HandleDoubleClickTree (OSGUIsh::HandlerParams& params)
 {
    TextDoubleClicked->setText ("Just a tree, not three!");
 }
 
-void HandleDoubleClickStrawberry (OSGUIsh::NodePtr node, const osgGA::GUIEventAdapter& ea,
-                                  const osgUtil::Hit& hit)
+void HandleDoubleClickStrawberry (OSGUIsh::HandlerParams& params)
 {
    TextDoubleClicked->setText ("A lone, field-less strawberry.");
 }

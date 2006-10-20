@@ -271,22 +271,22 @@ namespace OSGUIsh
          if (prevNodeUnderMouse.valid()
              && currentPositionUnderMouse != prevPositionUnderMouse)
          {
-            signals_[currentNodeUnderMouse]["MouseMove"]->operator()(
-               currentNodeUnderMouse, ea, hitUnderMouse_);
+            HandlerParams params (currentNodeUnderMouse, ea, hitUnderMouse_);
+            signals_[currentNodeUnderMouse]["MouseMove"]->operator()(params);
          }
       }
       else // currentNodeUnderMouse != prevNodeUnderMouse
       {
          if (prevNodeUnderMouse.valid())
          {
-            signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(
-               prevNodeUnderMouse, ea, hitUnderMouse_);
+            HandlerParams params (prevNodeUnderMouse, ea, hitUnderMouse_);
+            signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(params);
          }
 
          if (currentNodeUnderMouse.valid())
          {
-            signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(
-               currentNodeUnderMouse, ea, hitUnderMouse_);
+            HandlerParams params (currentNodeUnderMouse, ea, hitUnderMouse_);
+            signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(params);
          }
       }
    }
@@ -299,8 +299,8 @@ namespace OSGUIsh
       // Trigger a "MouseDown" signal.
       if (nodeUnderMouse_.valid())
       {
-         signals_[nodeUnderMouse_]["MouseDown"]->operator()(
-            nodeUnderMouse_, ea, hitUnderMouse_);
+         HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
+         signals_[nodeUnderMouse_]["MouseDown"]->operator()(params);
       }
 
       // Do the bookkeeping for "Click" and "DoubleClick"
@@ -320,22 +320,22 @@ namespace OSGUIsh
          MouseButton button = getMouseButton (ea);
 
          // First the trivial case: the "MouseUp" event
-         signals_[nodeUnderMouse_]["MouseUp"]->operator()(
-            nodeUnderMouse_, ea, hitUnderMouse_);
+         HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
+         signals_[nodeUnderMouse_]["MouseUp"]->operator()(params);
 
          // Now, the trickier ones: "Click" and "DoubleClick"
          if (nodeUnderMouse_ == nodeThatGotMouseDown_[button])
          {
-            signals_[nodeUnderMouse_]["Click"]->operator()(
-               nodeUnderMouse_, ea, hitUnderMouse_);
+            HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
+            signals_[nodeUnderMouse_]["Click"]->operator()(params);
 
             const double now = ea.getTime();
 
             if (now - timeOfLastClick_[button] < DOUBLE_CLICK_INTERVAL
                 && nodeUnderMouse_ == nodeThatGotClick_[button])
             {
-               signals_[nodeUnderMouse_]["DoubleClick"]->operator()(
-                  nodeUnderMouse_, ea, hitUnderMouse_);
+               HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
+               signals_[nodeUnderMouse_]["DoubleClick"]->operator()(params);
             }
 
             nodeThatGotClick_[button] = nodeUnderMouse_;
@@ -349,7 +349,8 @@ namespace OSGUIsh
    // - EventHandler::handleKeyDownEvent ---------------------------------------
    void EventHandler::handleKeyDownEvent (const osgGA::GUIEventAdapter& ea)
    {
-      signals_[kbdFocus_]["KeyDown"]->operator()(kbdFocus_, ea, hitUnderMouse_);
+      HandlerParams params (kbdFocus_, ea, hitUnderMouse_);
+      signals_[kbdFocus_]["KeyDown"]->operator()(params);
    }
 
 
@@ -357,7 +358,8 @@ namespace OSGUIsh
    // - EventHandler::handleKeyUpEvent -----------------------------------------
    void EventHandler::handleKeyUpEvent (const osgGA::GUIEventAdapter& ea)
    {
-      signals_[kbdFocus_]["KeyUp"]->operator()(kbdFocus_, ea, hitUnderMouse_);
+      HandlerParams params (kbdFocus_, ea, hitUnderMouse_);
+      signals_[kbdFocus_]["KeyUp"]->operator()(params);
    }
 
 
@@ -369,15 +371,15 @@ namespace OSGUIsh
       {
          case osgGA::GUIEventAdapter::SCROLL_UP:
          {
-            signals_[wheelFocus_]["MouseWheelUp"]->operator()(wheelFocus_, ea,
-                                                              hitUnderMouse_);
+            HandlerParams params (wheelFocus_, ea, hitUnderMouse_);
+            signals_[wheelFocus_]["MouseWheelUp"]->operator()(params);
             break;
          }
 
          case osgGA::GUIEventAdapter::SCROLL_DOWN:
          {
-            signals_[wheelFocus_]["MouseWheelDown"]->operator()(wheelFocus_, ea,
-                                                                hitUnderMouse_);
+            HandlerParams params (wheelFocus_, ea, hitUnderMouse_);
+            signals_[wheelFocus_]["MouseWheelDown"]->operator()(params);
             break;
          }
 
