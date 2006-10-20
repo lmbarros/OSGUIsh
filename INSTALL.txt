@@ -32,7 +32,9 @@ installation command would be something like
 ~~~~~~~~~~~~~~~~~~~~
 Well, you should :-)
 
-I may provide alternatives in the future (a Makefile, for instance),
-but currently there are no alternatives. Compiling OSGUIsh with your
-favorite building system should be easy, though: just compile and
-link with all files in the 'Sources' directory.
+Anyway, I'll try to be nice and will provide alternatives as long as I
+feel they worth the trouble to be created and maintained. Or, as
+people contribute with project files for their favorite IDE or build
+system.
+
+So, check the 'Build' directory for some alternatives.

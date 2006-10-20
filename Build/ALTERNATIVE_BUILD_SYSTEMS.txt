@@ -1,0 +1,3 @@
+ Makefile.linux.gcc
+~~~~~~~~~~~~~~~~~~~~
+Makefile for GNU/Linux with g++ compiler.
