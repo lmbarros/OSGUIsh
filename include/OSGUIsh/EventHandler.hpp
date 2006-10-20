@@ -75,7 +75,10 @@ namespace OSGUIsh
    class EventHandler: public osgGA::GUIEventHandler
    {
       public:
-         /** Constructs an \c EventHandler.
+         /** Constructs an \c EventHandler. The constructor will set the picking
+          *  root to \c viewer.getSceneSceneData(). So, if you want to use this
+          *  default value, call setSceneData() on the viewer before passing it
+          *  to this constructor.
           *  @param viewer The viewer used to view the scene graph. This used
           *         for calling its \c computeIntersections() method.
           *  @param kbdPolicyFactory The factory that will be used to create the
@@ -84,6 +87,11 @@ namespace OSGUIsh
           *  @param wheelPolicyFactory The factory that will be used to create
           *         the \c FocusPolicy used to automatically set the focus for
           *         mouse wheel events.
+          *  @see setPickingRoots for a way to manually set the picking roots
+          *       (and also for an explanation on what are these "picking roots"
+          *       after all).
+          *  @see setPickingRoot for another way to manually set the picking
+          *       roots.
           */
          EventHandler (osgProducer::Viewer& viewer,
                        const FocusPolicyFactory& kbdPolicyFactory =
