@@ -1,0 +1,32 @@
+Version 0.2 (02006-10-20)
+~~~~~~~~~~~
+ - Added a new picking scheme, with multiple "picking roots". Can be
+   used to fix problems with picking with multiple 'CameraNodes'.
+   That's the case when using HUDs, for example.
+ - Added an option to ignore back faces when picking.
+ - Event handlers now take all their parameters as a single (struct)
+   parameter. This will make the interface a little more stable, at
+   least until I decide to make more radical changes to it.
+ - Added a quick and dirty Makefile for Linux systems using g++, just
+   for convenience. The official build system is still based on
+   SCons. This makefile will just compile the library (not the
+   demos).
+ - Assorted code clean-ups, bug fixes, typo corrections and
+   documentation improvements. (But still missing a user's guide.)
+Perhaps the two most urgent TODOs are related to documentation:
+ - A simple user's guide.
+ - A demo showing how to use the "multiple picking roots" to perform
+   picking correctly when using a HUD.
+
+
+Version 0.1 (02006-09-27)
+~~~~~~~~~~~
+First public release, with an unstable interface and the following
+features:
+ - Support for the following events: "mouse enter", "mouse leave",
+   "mouse move", "mouse down", "mouse up", "click", "double click",
+   "mouse wheel up", "mouse wheel down", "key up" and "key down".
+ - Support for different policies to determine which node gets mouse
+   wheel and keyboard events.
+ - Contains three demos, showing how to use it.
+ - Has Doxygen documentation. (Still lacks a user's guide).
