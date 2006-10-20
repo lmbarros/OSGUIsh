@@ -271,6 +271,12 @@ int main (int argc, char* argv[])
    osgProducer::Viewer viewer;
    viewer.setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
 
+   // Construct the scene graph, set it as the data to be viewed
+   osg::ref_ptr<osg::Group> sgRoot = LoadModels().get();
+   sgRoot->addChild (CreateHUD (1024, 768).get());
+   viewer.setSceneData (sgRoot.get());
+
+   // Create the OSGUIsh event handler
    osg::ref_ptr<OSGUIsh::EventHandler> guishEH(
       new OSGUIsh::EventHandler(
          viewer,
@@ -279,15 +285,11 @@ int main (int argc, char* argv[])
 
    viewer.getEventHandlerList().push_front (guishEH.get());
 
+   // Add an event handler for changing the policies
    osg::ref_ptr<ChangePolicyEventHandler> focusPolicyEH(
       new ChangePolicyEventHandler (guishEH));
 
    viewer.getEventHandlerList().push_front (focusPolicyEH.get());
-
-   // Construct the scene graph, set it as the data to be viewed
-   osg::ref_ptr<osg::Group> sgRoot = LoadModels().get();
-   sgRoot->addChild (CreateHUD (1024, 768).get());
-   viewer.setSceneData (sgRoot.get());
 
    // Adds the node to the event handler, so that it can get events
    guishEH->addNode (TreeNode);

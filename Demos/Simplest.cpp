@@ -76,12 +76,7 @@ int main (int argc, char* argv[])
    osgProducer::Viewer viewer;
    viewer.setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
 
-   osg::ref_ptr<OSGUIsh::EventHandler> guishEH(
-      new OSGUIsh::EventHandler (viewer));
-
-   viewer.getEventHandlerList().push_front (guishEH.get());
-
-   // Load the model
+   // Load the model, set it as the scene data
    osg::ref_ptr<osg::Node> loadedModel = osgDB::readNodeFile ("Data/Tree_01.3ds");
 
    if (!loadedModel)
@@ -91,6 +86,12 @@ int main (int argc, char* argv[])
    }
 
    viewer.setSceneData (loadedModel.get());
+
+   // Create the OSGUIsh event handler
+   osg::ref_ptr<OSGUIsh::EventHandler> guishEH(
+      new OSGUIsh::EventHandler (viewer));
+
+   viewer.getEventHandlerList().push_front (guishEH.get());
 
    // Adds the node to the event handler, so that it can get events
    guishEH->addNode (loadedModel);
