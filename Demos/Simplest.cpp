@@ -6,7 +6,7 @@
 
 #include <iostream>
 #include <osgDB/ReadFile>
-#include <osgProducer/Viewer>
+#include <osgViewer/Viewer>
 #include <OSGUIsh/EventHandler.hpp>
 
 //
@@ -73,9 +73,8 @@ void HandleMouseWheelDown(OSGUIsh::HandlerParams& params)
 // - main ----------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-   // Create a Producer-based viewer
-   osgProducer::Viewer viewer;
-   viewer.setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
+   // Create a viewer
+   osgViewer::Viewer viewer;
 
    // Load the model, set it as the scene data
    osg::ref_ptr<osg::Node> loadedModel = osgDB::readNodeFile("Data/Tree_01.3ds");
@@ -89,10 +88,8 @@ int main(int argc, char* argv[])
    viewer.setSceneData(loadedModel.get());
 
    // Create the OSGUIsh event handler
-   osg::ref_ptr<OSGUIsh::EventHandler> guishEH(
-      new OSGUIsh::EventHandler (viewer));
-
-   viewer.getEventHandlerList().push_front (guishEH.get());
+   osg::ref_ptr<OSGUIsh::EventHandler> guishEH(new OSGUIsh::EventHandler());
+   viewer.addEventHandler(guishEH.get());
 
    // Adds the node to the event handler, so that it can get events
    guishEH->addNode(loadedModel);
@@ -111,19 +108,9 @@ int main(int argc, char* argv[])
    guishEH->getSignal(loadedModel, "MouseWheelDown")->connect(&HandleMouseWheelDown);
 
    // Set the receivers of keyboard and mouse wheel events
-   guishEH->setKeyboardFocus (loadedModel);
-   guishEH->setMouseWheelFocus (loadedModel);
-
-   // An OpenGL window, please
-   viewer.realize();
+   guishEH->setKeyboardFocus(loadedModel);
+   guishEH->setMouseWheelFocus(loadedModel);
 
    // Enter rendering loop
-   while (!viewer.done())
-   {
-      viewer.sync();
-      viewer.update();
-      viewer.frame();
-   }
-
-   viewer.sync();
+   viewer.run();
 }

@@ -12,15 +12,16 @@
 #include "OSGUIsh/EventHandler.hpp"
 #include <boost/lexical_cast.hpp>
 
+#include <iostream> /////////////////////////////////////////////////////////////////////////////
+
 
 namespace OSGUIsh
 {
    // - EventHandler::EventHandler ---------------------------------------------
    EventHandler::EventHandler(
-      osgProducer::Viewer& viewer,
       const FocusPolicyFactory& kbdPolicyFactory,
       const FocusPolicyFactory& wheelPolicyFactory)
-      : viewer_(viewer), ignoreBackFaces_(false),
+      : ignoreBackFaces_(false),
         kbdFocusPolicy_(kbdPolicyFactory.create (kbdFocus_)),
         wheelFocusPolicy_(wheelPolicyFactory.create (wheelFocus_))
    {
@@ -33,9 +34,9 @@ namespace OSGUIsh
          timeOfLastClick_[i] = -1.0;
       }
 
-      // By default, use the viewer's scene root as the only root node when
-      // picking
-      pickingRoots_.push_back (viewer_.getSceneData());
+      // // // // // By default, use the viewer's scene root as the only root node when
+      // // // // // picking
+      // // // // pickingRoots_.push_back (viewer_.getSceneData());
    }
 
 
@@ -47,7 +48,7 @@ namespace OSGUIsh
       switch (ea.getEventType())
       {
          case osgGA::GUIEventAdapter::FRAME:
-            handleFrameEvent (ea);
+            handleFrameEvent(dynamic_cast<osgViewer::View*>(&aa), ea);
             break;
 
          case osgGA::GUIEventAdapter::PUSH:
@@ -82,21 +83,21 @@ namespace OSGUIsh
 
 
 
-   // - EventHandler::setPickingRoots ------------------------------------------
-   void EventHandler::setPickingRoots (std::vector<NodePtr> newRoots)
-   {
-      pickingRoots_ = newRoots;
-   }
+   // // // // // - EventHandler::setPickingRoots ------------------------------------------
+   // // // // void EventHandler::setPickingRoots (std::vector<NodePtr> newRoots)
+   // // // // {
+   // // // //    pickingRoots_ = newRoots;
+   // // // // }
 
 
 
-   // - EventHandler::setPickingRoot -------------------------------------------
-   void EventHandler::setPickingRoot (NodePtr newRoot)
-   {
-      std::vector<NodePtr> newRoots;
-      newRoots.push_back (newRoot);
-      setPickingRoots (newRoots);
-   }
+   // // // // // - EventHandler::setPickingRoot -------------------------------------------
+   // // // // void EventHandler::setPickingRoot (NodePtr newRoot)
+   // // // // {
+   // // // //    std::vector<NodePtr> newRoots;
+   // // // //    newRoots.push_back (newRoot);
+   // // // //    setPickingRoots (newRoots);
+   // // // // }
 
 
 
@@ -204,25 +205,28 @@ namespace OSGUIsh
    void EventHandler::handleFrameEvent(osgViewer::View* view,
                                        const osgGA::GUIEventAdapter& ea)
    {
-      assert (pickingRoots_.size() > 0);
+      // // // assert (pickingRoots_.size() > 0);
 
       // Find out who is, and who was under the mouse pointer
       NodePtr currentNodeUnderMouse;
       osg::Vec3 currentPositionUnderMouse;
 
-      typedef std::vector <NodePtr>::iterator iter_t;
-      for (iter_t p = pickingRoots_.begin(); p != pickingRoots_.end(); ++p)
-      {
-         osgUtil::IntersectVisitor::HitList hitList;
-         viewer_.computeIntersections (ea.getXnormalized(), ea.getYnormalized(),
-                                       p->get(), hitList);
+      // // // // typedef std::vector <NodePtr>::iterator iter_t;
+      // // // // for (iter_t p = pickingRoots_.begin(); p != pickingRoots_.end(); ++p)
+      // // // // {
+         // // // // osgUtil::IntersectVisitor::HitList hitList;
+         osgUtil::LineSegmentIntersector::Intersections hitList;
+         //////////// can pass the nodepath (to support HUDs/multiple roots)
+         view->computeIntersections(ea.getX(), ea.getY(),
+                                    hitList);
 
          if (hitList.size() > 0)
          {
-            typedef osgUtil::IntersectVisitor::HitList::const_iterator hl_iter_t;
+            typedef osgUtil::LineSegmentIntersector::Intersections::const_iterator hl_iter_t;
             hl_iter_t theHit = hitList.end();
 
-            if (ignoreBackFaces_)
+            std::cerr << "\n\nHERE WE GO!\n";
+            for (hl_iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
             {
                std::cerr << "   HIT! ratio = " << hit->ratio << '\n';
             }
@@ -235,22 +239,22 @@ namespace OSGUIsh
             //          - hit->getLocalLineSegment()->start();
             //       localVec.normalize();
 
-                  const bool frontFacing =
-                     localVec * hit->getLocalIntersectNormal() < 0.0;
+            //       const bool frontFacing =
+            //          localVec * hit->getLocalIntersectNormal() < 0.0;
 
-                  if (frontFacing)
-                  {
-                     theHit = hit;
-                     break;
-                  }
-               }
-            }
-            else // !ignoreBackFaces_
+            //       if (frontFacing)
+            //       {
+            //          theHit = hit;
+            //          break;
+            //       }
+            //    }
+            // }
+            // else // !ignoreBackFaces_
                theHit = hitList.begin();
 
             if (theHit != hitList.end())
             {
-               currentNodeUnderMouse = getObservedNode (theHit->getNodePath());
+               currentNodeUnderMouse = getObservedNode (theHit->nodePath);
                assert (signals_.find (currentNodeUnderMouse) != signals_.end()
                        && "'getObservedNode()' returned an invalid value!");
 
@@ -258,10 +262,10 @@ namespace OSGUIsh
 
                hitUnderMouse_ = *theHit;
 
-               break;
+               // // // // // break;
             }
          }  // if (hitList.size() > 0)
-      } // for (...pickingRoots_...)
+      // // // // } // for (...pickingRoots_...)
 
       NodePtr prevNodeUnderMouse = nodeUnderMouse_;
       osg::Vec3 prevPositionUnderMouse = positionUnderMouse_;

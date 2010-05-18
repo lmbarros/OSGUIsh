@@ -13,12 +13,17 @@
 #define _OSGUISH_TYPES_HPP_
 
 #include <osg/Node>
+#include <osgUtil/LineSegmentIntersector>
 
 
 namespace OSGUIsh
 {
    /// A (smart) pointer to a scene graph node.
    typedef osg::ref_ptr<osg::Node> NodePtr;
+
+   /// The type of an intersection (a hit when picking).
+   typedef osgUtil::LineSegmentIntersector::LineSegmentIntersector::Intersection
+   Intersection_t;
 
 } // namespace OSGUIsh
 

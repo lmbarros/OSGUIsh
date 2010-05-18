@@ -8,7 +8,7 @@
 #include <osg/MatrixTransform>
 #include <osg/PositionAttitudeTransform>
 #include <osgDB/ReadFile>
-#include <osgProducer/Viewer>
+#include <osgViewer/Viewer>
 #include <osgText/Text>
 #include <OSGUIsh/EventHandler.hpp>
 #include <OSGUIsh/MouseOverFocusPolicy.hpp>
@@ -285,29 +285,27 @@ osg::ref_ptr<osg::Group> LoadModels()
 // - main ----------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-   // Create a Producer-based viewer
-   osgProducer::Viewer viewer;
-   viewer.setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
+   // Create viewer
+   osgViewer::Viewer viewer;
 
    // Construct the scene graph, set it as the data to be viewed
    osg::ref_ptr<osg::Group> sgRoot = LoadModels().get();
-   sgRoot->addChild (CreateHUD (1024, 768).get());
-   viewer.setSceneData (sgRoot.get());
+   sgRoot->addChild(CreateHUD(1680, 1050).get());  /////////////////////////////////////////////////////////////////////////////
+   viewer.setSceneData(sgRoot.get());
 
    // Create the OSGUIsh event handler
    osg::ref_ptr<OSGUIsh::EventHandler> guishEH(
       new OSGUIsh::EventHandler(
-         viewer,
          OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::MouseOverFocusPolicy>(),
          OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::MouseDownFocusPolicy>()));
 
-   viewer.getEventHandlerList().push_front (guishEH.get());
+   viewer.addEventHandler(guishEH.get());
 
    // Add an event handler for changing the policies
    osg::ref_ptr<ChangePolicyEventHandler> focusPolicyEH(
       new ChangePolicyEventHandler(guishEH));
 
-   viewer.getEventHandlerList().push_front (focusPolicyEH.get());
+   viewer.addEventHandler(focusPolicyEH.get());
 
    // Adds the node to the event handler, so that it can get events
    guishEH->addNode(TreeNode);
@@ -336,12 +334,5 @@ int main(int argc, char* argv[])
    guishEH->getSignal(FishNode, "KeyDown")->connect(&HandleKeyDown);
 
    // Enter rendering loop
-   while (!viewer.done())
-   {
-      viewer.sync();
-      viewer.update();
-      viewer.frame();
-   }
-
-   viewer.sync();
+   viewer.run();
 }

@@ -8,7 +8,7 @@
 #include <osg/MatrixTransform>
 #include <osg/PositionAttitudeTransform>
 #include <osgDB/ReadFile>
-#include <osgProducer/Viewer>
+#include <osgViewer/Viewer>
 #include <osgText/Text>
 #include <OSGUIsh/EventHandler.hpp>
 
@@ -140,9 +140,8 @@ osg::ref_ptr<osg::Group> LoadModels()
 // - main ----------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-   // Create a Producer-based viewer
-   osgProducer::Viewer viewer;
-   viewer.setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
+   // Create a viewer
+   osgViewer::Viewer viewer;
 
    // Construct the scene graph, set it as the data to be viewed
    osg::ref_ptr<osg::Group> sgRoot = LoadModels().get();
@@ -152,7 +151,7 @@ int main(int argc, char* argv[])
    // Create the OSGUIsh event handler
    osg::ref_ptr<OSGUIsh::EventHandler> guishEH(new OSGUIsh::EventHandler());
 
-   viewer.getEventHandlerList().push_front (guishEH.get());
+   viewer.addEventHandler(guishEH.get());
 
    // Adds the node to the event handler, so that it can get events
    guishEH->addNode(TreeNode);
@@ -167,12 +166,5 @@ int main(int argc, char* argv[])
    guishEH->getSignal(TreeNode, "DoubleClick")->connect(&HandleDoubleClickTree);
 
    // Enter rendering loop
-   while (!viewer.done())
-   {
-      viewer.sync();
-      viewer.update();
-      viewer.frame();
-   }
-
-   viewer.sync();
+   viewer.run();
 }

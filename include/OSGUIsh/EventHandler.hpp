@@ -13,30 +13,33 @@
 #define _GUISH_EVENT_HANDLER_HPP_
 
 #include <boost/signal.hpp>
-#include <osgProducer/Viewer>
+#include <osgGA/GUIEventHandler>
+#include <osgUtil/LineSegmentIntersector>
+#include <osgViewer/View>
 #include <OSGUIsh/FocusPolicy.hpp>
 #include <OSGUIsh/ManualFocusPolicy.hpp>
 
+
 namespace OSGUIsh
 {
-   /** A \c struct grouping parameters passed to event handlers. Future versions
-    *  of OSGUish may add more members here if necessary without breaking
-    *  existing user code.
-    *  @note Be aware that, in the general case,
-    *        <tt>hit.getNodePath().back() != node.get()</tt>. \c hit contains
-    *        the actual, "low level" hit, while \c node contains the node
-    *        registered with OSGUish. For instance, suppose  you register a
-    *        car node, that has a car body node and four wheel nodes as
-    *        subnodes. \c node will always be the whole car, while \c hit will
-    *        be the "car body" or one of the "wheels".
+   /**
+    * A \c struct grouping parameters passed to event handlers. Future versions
+    * of OSGUish may add more members here if necessary without breaking
+    * existing user code.
+    * @note Be aware that, in the general case, <tt>hit.nodePath.back() !=
+    *       node</tt>. \c hit contains the actual, "low level" hit, while \c
+    *       node contains the node registered with OSGUish. For instance,
+    *       suppose you register a car node, that has a car body node and four
+    *       wheel nodes as subnodes. \c node will always be the whole car, while
+    *       \c hit will be the "car body" or one of the "wheels".
     */
    struct HandlerParams
    {
       public:
          /// Convenience constructor.
-         HandlerParams (NodePtr nodeParam,
-                        const osgGA::GUIEventAdapter& eventParam,
-                        const osgUtil::Hit& hitParam)
+         HandlerParams(NodePtr nodeParam,
+                       const osgGA::GUIEventAdapter& eventParam,
+                       const Intersection_t& hitParam)
             : node(nodeParam), event(eventParam), hit(hitParam)
          { }
 
@@ -49,19 +52,21 @@ namespace OSGUIsh
           */
          const osgGA::GUIEventAdapter& event;
 
-         /** The \c osgUtil::Hit for the node that was under the mouse pointer
-          *  when the event was generated.
-          *  @note Notice that, in some cases, the \c osgUtil::Hit for the node
-          *        under the mouse pointer doesn't really have something to do
-          *        with the event being handled. For example, if the event is a
-          *        <tt>KeyUp</tt> and the focus policy is not the "node under
-          *        mouse has focus" policy, than the hit will not be related to
-          *        the node generating the event.
-          *        <p>Also, in cases like the above, the hit may even be
-          *        invalid, since, perhaps, there will not be any registered
-          *        node under the mouse pointer.
+         /**
+          * The \c Intersection_t for the node that was under the mouse pointer
+          * when the event was generated.
+          * @note Notice that, in some cases, the \c Intersection_t for the node
+          *       under the mouse pointer doesn't really have something to do
+          *       with the event being handled. For example, if the event is a
+          *       \c KeyUp and the focus policy is not the "node under mouse has
+          *       focus" policy, than the hit may not be related to the node
+          *       generating the event.
+          *       <p>Also, in cases like that, the hit may even be invalid,
+          *       since, perhaps, there will not be any registered node under
+          *       the mouse pointer. Figuring out if \c hit contains valid and
+          *       meaningful information is up to the user.
           */
-         const osgUtil::Hit& hit;
+         const Intersection_t& hit;
    };
 
 
@@ -75,29 +80,19 @@ namespace OSGUIsh
    class EventHandler: public osgGA::GUIEventHandler
    {
       public:
-         /** Constructs an \c EventHandler. The constructor will set the picking
-          *  root to \c viewer.getSceneSceneData(). So, if you want to use this
-          *  default value, call setSceneData() on the viewer before passing it
-          *  to this constructor.
-          *  @param viewer The viewer used to view the scene graph. This used
-          *         for calling its \c computeIntersections() method.
-          *  @param kbdPolicyFactory The factory that will be used to create the
-          *         \c FocusPolicy used to automatically set the focus for
-          *         keyboard events.
-          *  @param wheelPolicyFactory The factory that will be used to create
-          *         the \c FocusPolicy used to automatically set the focus for
-          *         mouse wheel events.
-          *  @see setPickingRoots for a way to manually set the picking roots
-          *       (and also for an explanation on what are these "picking roots"
-          *       after all).
-          *  @see setPickingRoot for another way to manually set the picking
-          *       roots.
+         /**
+          * Constructs an \c EventHandler.
+          * @param kbdPolicyFactory The factory that will be used to create the
+          *        \c FocusPolicy used to automatically set the focus for
+          *        keyboard events.
+          * @param wheelPolicyFactory The factory that will be used to create
+          *        the \c FocusPolicy used to automatically set the focus for
+          *        mouse wheel events.
           */
-         EventHandler (osgProducer::Viewer& viewer,
-                       const FocusPolicyFactory& kbdPolicyFactory =
-                       FocusPolicyFactoryMason<ManualFocusPolicy>(),
-                       const FocusPolicyFactory& wheelPolicyFactory =
-                       FocusPolicyFactoryMason<ManualFocusPolicy>());
+         EventHandler(const FocusPolicyFactory& kbdPolicyFactory =
+                      FocusPolicyFactoryMason<ManualFocusPolicy>(),
+                      const FocusPolicyFactory& wheelPolicyFactory =
+                      FocusPolicyFactoryMason<ManualFocusPolicy>());
 
          /**
           * Handles upcoming events (overloads virtual method).
@@ -106,35 +101,35 @@ namespace OSGUIsh
          bool handle(const osgGA::GUIEventAdapter& ea,
                      osgGA::GUIActionAdapter&);
 
-         /** Sets the list of root nodes used when picking.
-          *  <p>This deserves some words: when using multiple
-          *  <tt>osg::CameraNode</tt>s (in particular when using HUDs), picking
-          *  in OSG can be problematic. The details of this problem are not
-          *  important here (basically, we don't have control on the relative
-          *  "z-order" of objects in different <tt>CameraNode</tt>s). But it is
-          *  important to know that, if we want to pick objects in different
-          *  camera nodes, we may have some unpredictable results.
-          *  <p>So, what's the solution? Actually, there is no solution. At
-          *  least, not an easy one. So, OSGUIsh uses a list of root nodes when
-          *  picking, as a way to offer some control to its users.
-          *  <p>Suppose, for instance, that you want to pick both in a group of
-          *  objects and in a HUD. By default, OSGUIsh will pick from the root
-          *  of the whole scene (objects and HUD), which (as described above)
-          *  will not work. So, you call \c setPickingRoots() passing two nodes:
-          *  first the HUD, second the group of objects.
-          *  <p>Once you do this, OSGUIsh will start picking in two stages.
-          *  First, it will try picking the HUD. If it hits something in the
-          *  HUD, that hit will be used. If not, OSGUIsh will try picking the
-          *  group of objects.
-          */
-         void setPickingRoots (std::vector<NodePtr> newRoot);
+         // /** Sets the list of root nodes used when picking.
+         //  *  <p>This deserves some words: when using multiple
+         //  *  <tt>osg::CameraNode</tt>s (in particular when using HUDs), picking
+         //  *  in OSG can be problematic. The details of this problem are not
+         //  *  important here (basically, we don't have control on the relative
+         //  *  "z-order" of objects in different <tt>CameraNode</tt>s). But it is
+         //  *  important to know that, if we want to pick objects in different
+         //  *  camera nodes, we may have some unpredictable results.
+         //  *  <p>So, what's the solution? Actually, there is no solution. At
+         //  *  least, not an easy one. So, OSGUIsh uses a list of root nodes when
+         //  *  picking, as a way to offer some control to its users.
+         //  *  <p>Suppose, for instance, that you want to pick both in a group of
+         //  *  objects and in a HUD. By default, OSGUIsh will pick from the root
+         //  *  of the whole scene (objects and HUD), which (as described above)
+         //  *  will not work. So, you call \c setPickingRoots() passing two nodes:
+         //  *  first the HUD, second the group of objects.
+         //  *  <p>Once you do this, OSGUIsh will start picking in two stages.
+         //  *  First, it will try picking the HUD. If it hits something in the
+         //  *  HUD, that hit will be used. If not, OSGUIsh will try picking the
+         //  *  group of objects.
+         //  */
+         // void setPickingRoots (std::vector<NodePtr> newRoot);
 
-         /** Sets the root used by OSGUIsh when picking.
-          *  @see setPickingRoots for a longer discussion on how OSGUIsh
-          *       performs picking (you can set more than one root, for
-          *       example).
-          */
-         void setPickingRoot (NodePtr newRoot);
+         // /** Sets the root used by OSGUIsh when picking.
+         //  *  @see setPickingRoots for a longer discussion on how OSGUIsh
+         //  *       performs picking (you can set more than one root, for
+         //  *       example).
+         //  */
+         // void setPickingRoot (NodePtr newRoot);
 
          /**
           * A type representing a signal used in OSGUIsh. This signal returns
@@ -217,59 +212,62 @@ namespace OSGUIsh
           */
          NodePtr getObservedNode(const osg::NodePath& nodePath);
 
-         /** Handles a \c FRAME event triggered by Producer. Signals triggered
-          *  here are <tt>"MouseEnter"</tt>, <tt>"MouseLeave"</tt> and
-          *  <tt>"MouseMove"</tt>.
-          *  @param ea The event generated by Producer.
+         /**
+          * Handles a \c FRAME event triggered by OSG. Signals triggered here
+          * are <tt>"MouseEnter"</tt>, <tt>"MouseLeave"</tt> and
+          * <tt>"MouseMove"</tt>.
+          * @param ea The event generated by OSG.
           */
          void handleFrameEvent(osgViewer::View* view,
                                const osgGA::GUIEventAdapter& ea);
 
-         /** Handles a \c PUSH event triggered by Producer. The only signal
-          *  triggered here is <tt>"MouseDown"</tt>, but this function also does
-          *  bookkeeping related to other mouse signals.
-          *  @param ea The event generated by Producer.
+         /**
+          * Handles a \c PUSH event triggered by OSG. The only signal triggered
+          * here is <tt>"MouseDown"</tt>, but this function also does
+          * bookkeeping related to other mouse signals.
+          * @param ea The event generated by OSG.
           */
          void handlePushEvent(const osgGA::GUIEventAdapter& ea);
 
-         /** Handles a \c RELEASE event triggered by Producer. Signals triggered
-          *  here are <tt>"MouseUp"</tt>, <tt>"Click"</tt> and
-          *  <tt>"DoubleClick"</tt>.
-          *  @param ea The event generated by Producer.
+         /**
+          * Handles a \c RELEASE event triggered by OSG. Signals triggered here
+          * are <tt>"MouseUp"</tt>, <tt>"Click"</tt> and <tt>"DoubleClick"</tt>.
+          * @param ea The event generated by OSG.
           */
          void handleReleaseEvent(const osgGA::GUIEventAdapter& ea);
 
-         /** Handles a \c KEYDOWN event triggered by Producer. The only signal
-          *  triggered here is <tt>"KeyDown"</tt>.
-          *  @param ea The event generated by Producer.
+         /**
+          * Handles a \c KEYDOWN event triggered by OSG. The only signal
+          * triggered here is <tt>"KeyDown"</tt>.
+          * @param ea The event generated by OSG.
           */
          void handleKeyDownEvent(const osgGA::GUIEventAdapter& ea);
 
-         /** Handles a \c KEYUP event triggered by Producer. The only signal
-          *  triggered here is <tt>"KeyUp"</tt>.
-          *  @param ea The event generated by Producer.
+         /**
+          * Handles a \c KEYUP event triggered by OSG. The only signal triggered
+          * here is <tt>"KeyUp"</tt>.
+          * @param ea The event generated by OSG.
           */
          void handleKeyUpEvent(const osgGA::GUIEventAdapter& ea);
 
-         /** Handles a \c SCROLL event triggered by Producer. The signal
-          *  triggered here are <tt>"ScrollUp"</tt> and <tt>"ScrollDown"</tt>.
-          *  @param ea The event generated by Producer.
+         /**
+          * Handles a \c SCROLL event triggered by OSG. The signals triggered
+          * here are <tt>"ScrollUp"</tt> and <tt>"ScrollDown"</tt>.
+          * @param ea The event generated by OSG.
           */
          void handleScrollEvent(const osgGA::GUIEventAdapter& ea);
 
-         /// The viewer viewing the nodes.
-         osgProducer::Viewer& viewer_;
-
-         /** If this is \c true, faces back-facing the viewer will be ignored
-          *  while picking.
+         /**
+          * If this is \c true, faces back-facing the viewer will be ignored
+          * while picking.
           */
          bool ignoreBackFaces_;
 
-         /** The list of root nodes used when picking.
-          *  @see setPickingRoots for a discussion on how this is used and why
-          *       this is necessary.
-          */
-         std::vector<NodePtr> pickingRoots_;
+         // /** The list of root nodes used when picking.
+         //  *  @see setPickingRoots for a discussion on how this is used and why
+         //  *       this is necessary.
+         //  */
+         // std::vector<NodePtr> pickingRoots_;
 
          /**
           * The values to be returned by the \c handle() method, depending on
@@ -294,10 +292,11 @@ namespace OSGUIsh
           */
          SignalsMap_t signals_;
 
-         /** The \c osgUtil::Hit structure for the node currently under the
-          *  mouse pointer. (Respecting the \c ignoreBackFaces_ flag.)
+         /**
+          * The \c Intersection_t structure for the node currently under the
+          * mouse pointer. (Respecting the \c ignoreBackFaces_ flag.)
           */
-         osgUtil::Hit hitUnderMouse_;
+         Intersection_t hitUnderMouse_;
 
          //
          // For "MouseEnter", "MouseLeave", "MouseMove"
