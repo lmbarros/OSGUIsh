@@ -56,6 +56,7 @@ osg::ref_ptr<osg::Projection> CreateHUD (int width, int height)
    osg::ref_ptr<osg::Geode> hudGeometry (new osg::Geode());
 
    TextMouseOver = new osgText::Text();
+   TextMouseOver->setDataVariance(osg::Object::DYNAMIC);
    TextMouseOver->setText("Mouse over nothing vegetable!");
    TextMouseOver->setFont("Data/bluehigl.ttf");
    TextMouseOver->setPosition(osg::Vec3 (10.0f, 10.0f, 0.0f));
@@ -63,6 +64,7 @@ osg::ref_ptr<osg::Projection> CreateHUD (int width, int height)
    hudGeometry->addDrawable(TextMouseOver.get());
 
    TextDoubleClicked = new osgText::Text();
+   TextDoubleClicked->setDataVariance(osg::Object::DYNAMIC);
    TextDoubleClicked->setText("Try double clicking vegetables!");
    TextDoubleClicked->setFont("Data/bluehigl.ttf");
    TextDoubleClicked->setPosition(osg::Vec3 (10.0f, 40.0f, 0.0f));

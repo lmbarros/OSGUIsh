@@ -178,6 +178,7 @@ osg::ref_ptr<osg::Projection> CreateHUD(int width, int height)
    osg::ref_ptr<osg::Geode> hudGeometry(new osg::Geode());
 
    TextMouseOver = new osgText::Text();
+   TextMouseOver->setDataVariance(osg::Object::DYNAMIC);
    TextMouseOver->setText("Mouse over nothing!");
    TextMouseOver->setFont("Data/bluehigl.ttf");
    TextMouseOver->setPosition(osg::Vec3 (10.0f, 10.0f, 0.0f));
@@ -185,6 +186,7 @@ osg::ref_ptr<osg::Projection> CreateHUD(int width, int height)
    hudGeometry->addDrawable(TextMouseOver.get());
 
    TextMouseWheelEvent = new osgText::Text();
+   TextMouseWheelEvent->setDataVariance(osg::Object::DYNAMIC);
    TextMouseWheelEvent->setText("Waiting for mouse wheel event");
    TextMouseWheelEvent->setFont("Data/bluehigl.ttf");
    TextMouseWheelEvent->setPosition(osg::Vec3 (10.0f, 40.0f, 0.0f));
@@ -192,6 +194,7 @@ osg::ref_ptr<osg::Projection> CreateHUD(int width, int height)
    hudGeometry->addDrawable(TextMouseWheelEvent.get());
 
    TextKeyboardEvent = new osgText::Text();
+   TextKeyboardEvent->setDataVariance(osg::Object::DYNAMIC);
    TextKeyboardEvent->setText("Waiting for keyboard event");
    TextKeyboardEvent->setFont("Data/bluehigl.ttf");
    TextKeyboardEvent->setPosition(osg::Vec3 (10.0f, 70.0f, 0.0f));
@@ -199,6 +202,7 @@ osg::ref_ptr<osg::Projection> CreateHUD(int width, int height)
    hudGeometry->addDrawable(TextKeyboardEvent.get());
 
    TextMouseWheelFocusPolicy = new osgText::Text();
+   TextMouseWheelFocusPolicy->setDataVariance(osg::Object::DYNAMIC);
    TextMouseWheelFocusPolicy->setText(
       "Mouse wheel focus policy: mouse down sets focus");
    TextMouseWheelFocusPolicy->setFont("Data/bluehigl.ttf");
@@ -207,6 +211,7 @@ osg::ref_ptr<osg::Projection> CreateHUD(int width, int height)
    hudGeometry->addDrawable(TextMouseWheelFocusPolicy.get());
 
    TextKeyboardFocusPolicy = new osgText::Text();
+   TextKeyboardFocusPolicy->setDataVariance(osg::Object::DYNAMIC);
    TextKeyboardFocusPolicy->setText(
       "Keyboard focus policy: mouse over sets focus");
    TextKeyboardFocusPolicy->setFont("Data/bluehigl.ttf");
