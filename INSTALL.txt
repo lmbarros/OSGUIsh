@@ -1,40 +1,40 @@
-====================================================
+===================================================
  OSGUIsh COMPILATION AND INSTALLATION INSTRUCTIONS
-====================================================
+===================================================
 
 
  Dependencies
 ~~~~~~~~~~~~~~
+
 Apart from the Open Scene Graph, OSGUIsh depends only on Boost
 (http://www.boost.org). I think so, at least.
 
 
+
  Building
 ~~~~~~~~~~
-OSGUIsh's official build system is based on SCons
-(http://www.scons.org), so, ideally, you should have it (see "I Don't
-Have SCons" below if you want alternatives). So, Once you have the
-dependencies and SCons installed, just type 'scons' to build
-OSGUIsh. You may wish to use the 'mode' option to set the build
-mode. For instance, using 'scons mode=opt' you'll make an optimized
-build. Use 'scons -h' for help.
+
+OSGUIsh's build system is based on CMake (http://www.cmake.org). The
+build process should follow the usual CMake steps:
+
+   cd build
+   cmake ..
+   make
+
+That said, I recommend to OSGUIsh users to simply add the OSGUIsh
+sources to their projects (see below).
+
 
 
  Installing
 ~~~~~~~~~~~~
-Use 'scons install'. You'll most likely like to use the 'prefix'
-option to configure the installation root directory. In this case, the
-installation command would be something like
-'scons mode=opt prefix=/Foo/Bar/OSGUIsh install'.
 
+OSGUIsh is a fairly small library, and one of very limited usefulness
+(in the sense that few programs need the functionality it
+provides). Therefore, I think that OSGUIsh users should simply add the
+OSGUIsh sources to their project.
 
- I Don't Have SCons
-~~~~~~~~~~~~~~~~~~~~
-Well, you should :-)
-
-Anyway, I'll try to be nice and will provide alternatives as long as I
-feel they worth the trouble to be created and maintained. Or, as
-people contribute with project files for their favorite IDE or build
-system.
-
-So, check the 'Build' directory for some alternatives.
+If you really, really want to install OSGUIsh in a more traditional
+way, you are on your own. It shouldn't be hard, though, since OSGUIsh
+compiles to a single library, and all public header files are neatly
+stored in the same directory.
