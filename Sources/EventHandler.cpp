@@ -2,8 +2,7 @@
 * EventHandler.cpp                                                             *
 * An event handler providing GUI-like events                                   *
 *                                                                              *
-*                                                                              *
-* Copyright (C) 2006 by Leandro Motta Barros.                                  *
+* Copyright (C) 2006-2010 by Leandro Motta Barros.                             *
 *                                                                              *
 * This program is distributed under the OpenSceneGraph Public License. You     *
 * should have received a copy of it with the source distribution, in a file    *
@@ -203,7 +202,8 @@ namespace OSGUIsh
 
 
    // - EventHandler::handleFrameEvent -----------------------------------------
-   void EventHandler::handleFrameEvent (const osgGA::GUIEventAdapter& ea)
+   void EventHandler::handleFrameEvent(osgViewer::View* view,
+                                       const osgGA::GUIEventAdapter& ea)
    {
       assert (pickingRoots_.size() > 0);
 
@@ -225,11 +225,16 @@ namespace OSGUIsh
 
             if (ignoreBackFaces_)
             {
-               for (hl_iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
-               {
-                  osg::Vec3 localVec = hit->getLocalLineSegment()->end()
-                     - hit->getLocalLineSegment()->start();
-                  localVec.normalize();
+               std::cerr << "   HIT! ratio = " << hit->ratio << '\n';
+            }
+            // if (ignoreBackFaces_)
+            // {
+            //    ///////////////// is this guaranteed to be ordered by "t"?
+            //    for (hl_iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
+            //    {
+            //       osg::Vec3 localVec = hit->getLocalLineSegment()->end()
+            //          - hit->getLocalLineSegment()->start();
+            //       localVec.normalize();
 
                   const bool frontFacing =
                      localVec * hit->getLocalIntersectNormal() < 0.0;
