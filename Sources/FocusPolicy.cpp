@@ -14,7 +14,10 @@
 namespace OSGUIsh
 {
    // - FocusPolicy::FocusPolicy -----------------------------------------------
-   FocusPolicy::FocusPolicy (NodePtr& focusedNode)
+   FocusPolicy::FocusPolicy(NodePtr& focusedNode)
       : focusedNode_(focusedNode)
-   { }
-}
+   {
+      // empty...
+   }
+
+} // namespace OSGUIsh

@@ -15,17 +15,19 @@
 namespace OSGUIsh
 {
    // - MouseOverFocusPolicy::MouseOverFocusPolicy -----------------------------
-   MouseOverFocusPolicy::MouseOverFocusPolicy (NodePtr& focusedNode)
-      : FocusPolicy (focusedNode)
-   { }
-
-
-
-   // - MouseOverFocusPolicy::updateFocus -----------------------------------------
-   void MouseOverFocusPolicy::updateFocus (const osgGA::GUIEventAdapter& ea,
-                                           const NodePtr nodeUnderMouse)
+   MouseOverFocusPolicy::MouseOverFocusPolicy(NodePtr& focusedNode)
+      : FocusPolicy(focusedNode)
    {
-      setFocusedNode (nodeUnderMouse);
+      // empty...
    }
 
-}
+
+
+   // - MouseOverFocusPolicy::updateFocus --------------------------------------
+   void MouseOverFocusPolicy::updateFocus(const osgGA::GUIEventAdapter& ea,
+                                          const NodePtr nodeUnderMouse)
+   {
+      setFocusedNode(nodeUnderMouse);
+   }
+
+} // namespace OSGUIsh

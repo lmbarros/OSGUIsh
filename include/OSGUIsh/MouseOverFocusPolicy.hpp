@@ -22,13 +22,13 @@ namespace OSGUIsh
    {
       public:
          /// Constructs a \c MouseOverFocusPolicy.
-         MouseOverFocusPolicy (NodePtr& focusedNode);
+         MouseOverFocusPolicy(NodePtr& focusedNode);
 
          // (inherits documentation)
-         virtual void updateFocus (const osgGA::GUIEventAdapter& ea,
-                                   const NodePtr nodeUnderMouse);
+         virtual void updateFocus(const osgGA::GUIEventAdapter& ea,
+                                  const NodePtr nodeUnderMouse);
    };
 
-}
+} // namespace OSGUIsh
 
 #endif // _OSGUISH_MOUSE_OVER_FOCUS_POLICY_HPP_

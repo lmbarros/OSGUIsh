@@ -17,20 +17,21 @@
 
 namespace OSGUIsh
 {
-   /** A focus policy that doesn't change the focus. That is, it leaves all the
-    *  work to be done manually by the programmer.
+   /**
+    * A focus policy that doesn't change the focus. That is, it leaves all the
+    * work to be done manually by the programmer.
     */
    class ManualFocusPolicy: public FocusPolicy
    {
       public:
          /// Constructs a \c ManualFocusPolicy.
-         ManualFocusPolicy (NodePtr& focusedNode);
+         ManualFocusPolicy(NodePtr& focusedNode);
 
          // (inherits documentation)
-         virtual void updateFocus (const osgGA::GUIEventAdapter& ea,
-                                   const NodePtr nodeUnderMouse);
+         virtual void updateFocus(const osgGA::GUIEventAdapter& ea,
+                                  const NodePtr nodeUnderMouse);
    };
 
-}
+} // namespace OSGUIsh
 
 #endif // _OSGUISH_MANUAL_FOCUS_POLICY_HPP_

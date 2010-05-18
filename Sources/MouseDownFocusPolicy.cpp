@@ -15,18 +15,20 @@
 namespace OSGUIsh
 {
    // - MouseDownFocusPolicy::MouseDownFocusPolicy -----------------------------
-   MouseDownFocusPolicy::MouseDownFocusPolicy (NodePtr& focusedNode)
-      : FocusPolicy (focusedNode)
-   { }
+   MouseDownFocusPolicy::MouseDownFocusPolicy(NodePtr& focusedNode)
+      : FocusPolicy(focusedNode)
+   {
+      // empty...
+   }
 
 
 
    // - MouseDownFocusPolicy::updateFocus --------------------------------------
-   void MouseDownFocusPolicy::updateFocus (const osgGA::GUIEventAdapter& ea,
-                                           const NodePtr nodeUnderMouse)
+   void MouseDownFocusPolicy::updateFocus(const osgGA::GUIEventAdapter& ea,
+                                          const NodePtr nodeUnderMouse)
    {
       if (ea.getEventType() == osgGA::GUIEventAdapter::PUSH)
          setFocusedNode (nodeUnderMouse);
    }
 
-}
+} // namespace OSGUIsh

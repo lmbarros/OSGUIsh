@@ -15,7 +15,6 @@
 
 namespace OSGUIsh
 {
-
    // - EventHandler::EventHandler ---------------------------------------------
    EventHandler::EventHandler(
       osgProducer::Viewer& viewer,
@@ -42,8 +41,8 @@ namespace OSGUIsh
 
 
    // - EventHandler::handle ---------------------------------------------------
-   bool EventHandler::handle (const osgGA::GUIEventAdapter& ea,
-                              osgGA::GUIActionAdapter&)
+   bool EventHandler::handle(const osgGA::GUIEventAdapter& ea,
+                             osgGA::GUIActionAdapter& aa)
    {
       switch (ea.getEventType())
       {
@@ -52,31 +51,31 @@ namespace OSGUIsh
             break;
 
          case osgGA::GUIEventAdapter::PUSH:
-            handlePushEvent (ea);
+            handlePushEvent(ea);
             break;
 
          case osgGA::GUIEventAdapter::RELEASE:
-            handleReleaseEvent (ea);
+            handleReleaseEvent(ea);
             break;
 
          case osgGA::GUIEventAdapter::KEYDOWN:
-            handleKeyDownEvent (ea);
+            handleKeyDownEvent(ea);
             break;
 
          case osgGA::GUIEventAdapter::KEYUP:
-            handleKeyUpEvent (ea);
+            handleKeyUpEvent(ea);
             break;
 
          case osgGA::GUIEventAdapter::SCROLL:
-            handleScrollEvent (ea);
+            handleScrollEvent(ea);
             break;
 
          default:
             break;
       }
 
-      kbdFocusPolicy_->updateFocus (ea, nodeUnderMouse_);
-      wheelFocusPolicy_->updateFocus (ea, nodeUnderMouse_);
+      kbdFocusPolicy_->updateFocus(ea, nodeUnderMouse_);
+      wheelFocusPolicy_->updateFocus(ea, nodeUnderMouse_);
 
       return handleReturnValues_[ea.getEventType()];
    }
@@ -102,22 +101,22 @@ namespace OSGUIsh
 
 
    // - EventHandler::addNode --------------------------------------------------
-   void EventHandler::addNode (const osg::ref_ptr<osg::Node> node)
+   void EventHandler::addNode(const osg::ref_ptr<osg::Node> node)
    {
 #     define OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT) \
-         signals_[node][#EVENT] = SignalPtr (new EventHandler::Signal_t());
+         signals_[node][#EVENT] = SignalPtr(new EventHandler::Signal_t());
 
-      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseEnter);
-      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseLeave);
-      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseMove);
-      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseDown);
-      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseUp);
-      OSGUISH_EVENTHANDLER_ADD_EVENT (Click);
-      OSGUISH_EVENTHANDLER_ADD_EVENT (DoubleClick);
-      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseWheelUp);
-      OSGUISH_EVENTHANDLER_ADD_EVENT (MouseWheelDown);
-      OSGUISH_EVENTHANDLER_ADD_EVENT (KeyUp);
-      OSGUISH_EVENTHANDLER_ADD_EVENT (KeyDown);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseEnter);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseLeave);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseMove);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseDown);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseUp);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(Click);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(DoubleClick);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseWheelUp);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseWheelDown);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(KeyUp);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(KeyDown);
 
 #     undef OSGUISH_EVENTHANDLER_ADD_EVENT
    }
@@ -153,7 +152,7 @@ namespace OSGUIsh
 
 
    // - EventHandler::setKeyboardFocus -----------------------------------------
-   void EventHandler::setKeyboardFocus (const NodePtr node)
+   void EventHandler::setKeyboardFocus(const NodePtr node)
    {
       kbdFocus_ = node;
    }
@@ -161,7 +160,7 @@ namespace OSGUIsh
 
 
    // - EventHandler::setMouseWheelFocus ---------------------------------------
-   void EventHandler::setMouseWheelFocus (const NodePtr node)
+   void EventHandler::setMouseWheelFocus(const NodePtr node)
    {
       wheelFocus_ = node;
    }
@@ -172,7 +171,7 @@ namespace OSGUIsh
    void EventHandler::setKeyboardFocusPolicy(
       const FocusPolicyFactory& policyFactory)
    {
-      kbdFocusPolicy_ = policyFactory.create (kbdFocus_);
+      kbdFocusPolicy_ = policyFactory.create(kbdFocus_);
    }
 
 
@@ -181,13 +180,13 @@ namespace OSGUIsh
    void EventHandler::setMouseWheelFocusPolicy(
       const FocusPolicyFactory& policyFactory)
    {
-      wheelFocusPolicy_ = policyFactory.create (wheelFocus_);
+      wheelFocusPolicy_ = policyFactory.create(wheelFocus_);
    }
 
 
 
    // - EventHandler::getObservedNode ------------------------------------------
-   NodePtr EventHandler::getObservedNode (const osg::NodePath& nodePath)
+   NodePtr EventHandler::getObservedNode(const osg::NodePath& nodePath)
    {
       typedef osg::NodePath::const_reverse_iterator iter_t;
       for (iter_t p = nodePath.rbegin(); p != nodePath.rend(); ++p)
@@ -299,7 +298,7 @@ namespace OSGUIsh
 
 
    // - EventHandler::handlePushEvent ------------------------------------------
-   void EventHandler::handlePushEvent (const osgGA::GUIEventAdapter& ea)
+   void EventHandler::handlePushEvent(const osgGA::GUIEventAdapter& ea)
    {
       // Trigger a "MouseDown" signal.
       if (nodeUnderMouse_.valid())
@@ -316,7 +315,7 @@ namespace OSGUIsh
 
 
    // - EventHandler::handleReleaseEvent ---------------------------------------
-   void EventHandler::handleReleaseEvent (const osgGA::GUIEventAdapter& ea)
+   void EventHandler::handleReleaseEvent(const osgGA::GUIEventAdapter& ea)
    {
       const double DOUBLE_CLICK_INTERVAL = 0.3;
 
@@ -325,13 +324,13 @@ namespace OSGUIsh
          MouseButton button = getMouseButton (ea);
 
          // First the trivial case: the "MouseUp" event
-         HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
+         HandlerParams params(nodeUnderMouse_, ea, hitUnderMouse_);
          signals_[nodeUnderMouse_]["MouseUp"]->operator()(params);
 
          // Now, the trickier ones: "Click" and "DoubleClick"
          if (nodeUnderMouse_ == nodeThatGotMouseDown_[button])
          {
-            HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
+            HandlerParams params(nodeUnderMouse_, ea, hitUnderMouse_);
             signals_[nodeUnderMouse_]["Click"]->operator()(params);
 
             const double now = ea.getTime();
@@ -352,38 +351,38 @@ namespace OSGUIsh
 
 
    // - EventHandler::handleKeyDownEvent ---------------------------------------
-   void EventHandler::handleKeyDownEvent (const osgGA::GUIEventAdapter& ea)
+   void EventHandler::handleKeyDownEvent(const osgGA::GUIEventAdapter& ea)
    {
-      HandlerParams params (kbdFocus_, ea, hitUnderMouse_);
+      HandlerParams params(kbdFocus_, ea, hitUnderMouse_);
       signals_[kbdFocus_]["KeyDown"]->operator()(params);
    }
 
 
 
    // - EventHandler::handleKeyUpEvent -----------------------------------------
-   void EventHandler::handleKeyUpEvent (const osgGA::GUIEventAdapter& ea)
+   void EventHandler::handleKeyUpEvent(const osgGA::GUIEventAdapter& ea)
    {
-      HandlerParams params (kbdFocus_, ea, hitUnderMouse_);
+      HandlerParams params(kbdFocus_, ea, hitUnderMouse_);
       signals_[kbdFocus_]["KeyUp"]->operator()(params);
    }
 
 
 
    // - EventHandler::handleScrollEvent ----------------------------------------
-   void EventHandler::handleScrollEvent (const osgGA::GUIEventAdapter& ea)
+   void EventHandler::handleScrollEvent(const osgGA::GUIEventAdapter& ea)
    {
       switch (ea.getScrollingMotion())
       {
          case osgGA::GUIEventAdapter::SCROLL_UP:
          {
-            HandlerParams params (wheelFocus_, ea, hitUnderMouse_);
+            HandlerParams params(wheelFocus_, ea, hitUnderMouse_);
             signals_[wheelFocus_]["MouseWheelUp"]->operator()(params);
             break;
          }
 
          case osgGA::GUIEventAdapter::SCROLL_DOWN:
          {
-            HandlerParams params (wheelFocus_, ea, hitUnderMouse_);
+            HandlerParams params(wheelFocus_, ea, hitUnderMouse_);
             signals_[wheelFocus_]["MouseWheelDown"]->operator()(params);
             break;
          }
@@ -409,8 +408,8 @@ namespace OSGUIsh
             return RIGHT_MOUSE_BUTTON;
          default:
          {
-            assert (false && "Got an invalid mouse button code. Is 'ea' really "
-                    "a mouse event?");
+            assert(false && "Got an invalid mouse button code. Is 'ea' really "
+                   "a mouse event?");
          }
       }
    }

@@ -17,20 +17,21 @@
 
 namespace OSGUIsh
 {
-   /** A focus policy that sets the focus on a node that gets a "MouseDown"
-    *  event.
+   /**
+    * A focus policy that sets the focus on a node that gets a "MouseDown"
+    * event.
     */
    class MouseDownFocusPolicy: public FocusPolicy
    {
       public:
          /// Constructs a \c MouseDownFocusPolicy.
-         MouseDownFocusPolicy (NodePtr& focusedNode);
+         MouseDownFocusPolicy(NodePtr& focusedNode);
 
          // (inherits documentation)
-         virtual void updateFocus (const osgGA::GUIEventAdapter& ea,
-                                   const NodePtr nodeUnderMouse);
+         virtual void updateFocus(const osgGA::GUIEventAdapter& ea,
+                                  const NodePtr nodeUnderMouse);
    };
 
-}
+} // namespace OSGUIsh
 
 #endif // _OSGUISH_MOUSE_DOWN_FOCUS_POLICY_HPP_
