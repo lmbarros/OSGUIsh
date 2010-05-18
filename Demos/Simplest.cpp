@@ -4,6 +4,7 @@
 * Leandro Motta Barros                                                         *
 \******************************************************************************/
 
+#include <iostream>
 #include <osgDB/ReadFile>
 #include <osgProducer/Viewer>
 #include <OSGUIsh/EventHandler.hpp>

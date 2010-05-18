@@ -4,6 +4,7 @@
 * Leandro Motta Barros                                                         *
 \******************************************************************************/
 
+#include <iostream>
 #include <osg/MatrixTransform>
 #include <osg/PositionAttitudeTransform>
 #include <osgDB/ReadFile>
