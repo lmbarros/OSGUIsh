@@ -159,6 +159,9 @@ namespace OSGUIsh
           *        <tt>"MouseUp"</tt>, <tt>"Click"</tt>, <tt>"DoubleClick"</tt>,
           *        <tt>"MouseWheelUp"</tt>, <tt>"MouseWheelDown"</tt>,
           *        <tt>"KeyUp"</tt> and <tt>"KeyDown"</tt>.
+          * @note The "mouse move" event is "relative": if the mouse is not
+          *       moving, but a node is moving "below" it, mouse move events
+          *       will be generated.
           */
          SignalPtr getSignal(const NodePtr node, const std::string& signal);
 
