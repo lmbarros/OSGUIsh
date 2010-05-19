@@ -171,6 +171,11 @@ namespace OSGUIsh
           * culling is enabled.
           * @param ignore If \c true, back faces will be ignored when picking.
           *        If \c false, back faces will be considered when piking.
+          * @bug "Ignore back faces" will not work always. More specifically, it
+          *      will work only when picking gets at least two hits. It doesn't
+          *      matter if these two hits are of front or back facing faces (or
+          *      a combination of them). If there is only a single hit, it will
+          *      not be ignored, even the face hit was a back facing one.
           */
          void ignoreBackFaces(bool ignore = true)
          { ignoreBackFaces_ = ignore; }

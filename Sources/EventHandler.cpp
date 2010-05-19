@@ -217,40 +217,45 @@ namespace OSGUIsh
          // // // // osgUtil::IntersectVisitor::HitList hitList;
          osgUtil::LineSegmentIntersector::Intersections hitList;
          //////////// can pass the nodepath (to support HUDs/multiple roots)
-         view->computeIntersections(ea.getX(), ea.getY(),
-                                    hitList);
+         view->computeIntersections(ea.getX(), ea.getY(), hitList);
 
          if (hitList.size() > 0)
          {
-            typedef osgUtil::LineSegmentIntersector::Intersections::const_iterator hl_iter_t;
-            hl_iter_t theHit = hitList.end();
+            typedef
+               osgUtil::LineSegmentIntersector::Intersections::const_iterator
+               iter_t;
 
-            std::cerr << "\n\nHERE WE GO!\n";
-            for (hl_iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
+            iter_t theHit = hitList.end();
+
+            // This implementation needs two or more hits to correctly ignore
+            // back faces. There is a little more detail about this in the
+            // Doxygen comments for \c ignoreBackFaces().
+            if (ignoreBackFaces_ && hitList.size() >= 2)
             {
-               std::cerr << "   HIT! ratio = " << hit->ratio << '\n';
+               const osg::Vec3 begin =
+                  hitList.begin()->getWorldIntersectPoint();
+               const osg::Vec3 end =
+                  (--hitList.end())->getWorldIntersectPoint();
+
+               osg::Vec3 rayDir = end - begin;
+               rayDir.normalize();
+
+               for (iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
+               {
+                  const bool frontFacing =
+                     rayDir * hit->getWorldIntersectNormal() < 0.0;
+
+                  if (frontFacing)
+                  {
+                     theHit = hit;
+                     break;
+                  }
+               }
             }
-            // if (ignoreBackFaces_)
-            // {
-            //    ///////////////// is this guaranteed to be ordered by "t"?
-            //    for (hl_iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
-            //    {
-            //       osg::Vec3 localVec = hit->getLocalLineSegment()->end()
-            //          - hit->getLocalLineSegment()->start();
-            //       localVec.normalize();
-
-            //       const bool frontFacing =
-            //          localVec * hit->getLocalIntersectNormal() < 0.0;
-
-            //       if (frontFacing)
-            //       {
-            //          theHit = hit;
-            //          break;
-            //       }
-            //    }
-            // }
-            // else // !ignoreBackFaces_
+            else // !ignoreBackFaces_
+            {
                theHit = hitList.begin();
+            }
 
             if (theHit != hitList.end())
             {
