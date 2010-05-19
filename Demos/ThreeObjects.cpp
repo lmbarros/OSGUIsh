@@ -16,7 +16,6 @@
 // Some globals (globals are not a problem in simple examples ;-))
 //
 
-OSGUIsh::NodePtr NodeUnderMouse;
 osg::ref_ptr<osg::Node> TreeNode;
 osg::ref_ptr<osg::Node> StrawberryNode;
 osg::ref_ptr<osg::Node> FishNode;
