@@ -75,6 +75,7 @@ int main(int argc, char* argv[])
 {
    // Create a viewer
    osgViewer::Viewer viewer;
+   viewer.setUpViewInWindow(0, 0, 1024, 768);
 
    // Load the model, set it as the scene data
    osg::ref_ptr<osg::Node> loadedModel = osgDB::readNodeFile("Data/Tree_01.3ds");

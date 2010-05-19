@@ -292,10 +292,11 @@ int main(int argc, char* argv[])
 {
    // Create viewer
    osgViewer::Viewer viewer;
+   viewer.setUpViewInWindow(0, 0, 1024, 768);
 
    // Construct the scene graph, set it as the data to be viewed
    osg::ref_ptr<osg::Group> sgRoot = LoadModels();
-   sgRoot->addChild(CreateHUD(1680, 1050));  /////////////////////////////////////////////////////////////////////////////
+   sgRoot->addChild(CreateHUD(1024, 768));
    viewer.setSceneData(sgRoot);
 
    // Create the OSGUIsh event handler
