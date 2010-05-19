@@ -30,4 +30,4 @@ namespace OSGUIsh
       // Do nothing. That's what "manual" is about.
    }
 
-}
+} // namespace OSGUIsh
