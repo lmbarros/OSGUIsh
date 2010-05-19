@@ -183,7 +183,7 @@ osg::ref_ptr<osg::Projection> CreateHUD(int width, int height)
    TextMouseOver->setFont("Data/bluehigl.ttf");
    TextMouseOver->setPosition(osg::Vec3 (10.0f, 10.0f, 0.0f));
    TextMouseOver->setCharacterSize(25.0);
-   hudGeometry->addDrawable(TextMouseOver.get());
+   hudGeometry->addDrawable(TextMouseOver);
 
    TextMouseWheelEvent = new osgText::Text();
    TextMouseWheelEvent->setDataVariance(osg::Object::DYNAMIC);
@@ -191,7 +191,7 @@ osg::ref_ptr<osg::Projection> CreateHUD(int width, int height)
    TextMouseWheelEvent->setFont("Data/bluehigl.ttf");
    TextMouseWheelEvent->setPosition(osg::Vec3 (10.0f, 40.0f, 0.0f));
    TextMouseWheelEvent->setCharacterSize(25.0);
-   hudGeometry->addDrawable(TextMouseWheelEvent.get());
+   hudGeometry->addDrawable(TextMouseWheelEvent);
 
    TextKeyboardEvent = new osgText::Text();
    TextKeyboardEvent->setDataVariance(osg::Object::DYNAMIC);
@@ -199,7 +199,7 @@ osg::ref_ptr<osg::Projection> CreateHUD(int width, int height)
    TextKeyboardEvent->setFont("Data/bluehigl.ttf");
    TextKeyboardEvent->setPosition(osg::Vec3 (10.0f, 70.0f, 0.0f));
    TextKeyboardEvent->setCharacterSize(25.0);
-   hudGeometry->addDrawable(TextKeyboardEvent.get());
+   hudGeometry->addDrawable(TextKeyboardEvent);
 
    TextMouseWheelFocusPolicy = new osgText::Text();
    TextMouseWheelFocusPolicy->setDataVariance(osg::Object::DYNAMIC);
@@ -208,7 +208,7 @@ osg::ref_ptr<osg::Projection> CreateHUD(int width, int height)
    TextMouseWheelFocusPolicy->setFont("Data/bluehigl.ttf");
    TextMouseWheelFocusPolicy->setPosition(osg::Vec3(10.0f, 100.0f, 0.0f));
    TextMouseWheelFocusPolicy->setCharacterSize(25.0);
-   hudGeometry->addDrawable(TextMouseWheelFocusPolicy.get());
+   hudGeometry->addDrawable(TextMouseWheelFocusPolicy);
 
    TextKeyboardFocusPolicy = new osgText::Text();
    TextKeyboardFocusPolicy->setDataVariance(osg::Object::DYNAMIC);
@@ -217,7 +217,7 @@ osg::ref_ptr<osg::Projection> CreateHUD(int width, int height)
    TextKeyboardFocusPolicy->setFont("Data/bluehigl.ttf");
    TextKeyboardFocusPolicy->setPosition(osg::Vec3 (10.0f, 130.0f, 0.0f));
    TextKeyboardFocusPolicy->setCharacterSize(25.0);
-   hudGeometry->addDrawable(TextKeyboardFocusPolicy.get());
+   hudGeometry->addDrawable(TextKeyboardFocusPolicy);
 
    // Create the HUD per se
    osg::ref_ptr<osg::StateSet> stateSet = hudGeometry->getOrCreateStateSet();
@@ -229,11 +229,11 @@ osg::ref_ptr<osg::Projection> CreateHUD(int width, int height)
    modelviewAbs->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
    modelviewAbs->setMatrix(osg::Matrix::identity());
 
-   modelviewAbs->addChild(hudGeometry.get());
+   modelviewAbs->addChild(hudGeometry);
 
    osg::ref_ptr<osg::Projection> projection(new osg::Projection());
    projection->setMatrix(osg::Matrix::ortho2D(0, width, 0, height));
-   projection->addChild(modelviewAbs.get());
+   projection->addChild(modelviewAbs);
 
    return projection;
 }
@@ -265,22 +265,22 @@ osg::ref_ptr<osg::Group> LoadModels()
    TreeNode->setName("Tree");
    osg::ref_ptr<osg::PositionAttitudeTransform> treePAT(
       new osg::PositionAttitudeTransform());
-   treePAT->addChild(TreeNode.get());
+   treePAT->addChild(TreeNode);
    treePAT->setPosition(osg::Vec3(1.2, 0.0, 0.0));
-   group->addChild(treePAT.get());
+   group->addChild(treePAT);
 
    StrawberryNode = LoadModel("Data/Strawberry.3ds");
    StrawberryNode->setName("Strawberry");
    osg::ref_ptr<osg::PositionAttitudeTransform> strawberryPAT(
       new osg::PositionAttitudeTransform());
-   strawberryPAT->addChild(StrawberryNode.get());
+   strawberryPAT->addChild(StrawberryNode);
    strawberryPAT->setPosition(osg::Vec3(-1.0, 0.0, 0.0));
-   group->addChild(strawberryPAT.get());
+   group->addChild(strawberryPAT);
 
    FishNode = LoadModel("Data/Fish.3ds");
    FishNode->setName("Fish");
 
-   group->addChild(FishNode.get());
+   group->addChild(FishNode);
 
    return group;
 }
@@ -294,9 +294,9 @@ int main(int argc, char* argv[])
    osgViewer::Viewer viewer;
 
    // Construct the scene graph, set it as the data to be viewed
-   osg::ref_ptr<osg::Group> sgRoot = LoadModels().get();
-   sgRoot->addChild(CreateHUD(1680, 1050).get());  /////////////////////////////////////////////////////////////////////////////
-   viewer.setSceneData(sgRoot.get());
+   osg::ref_ptr<osg::Group> sgRoot = LoadModels();
+   sgRoot->addChild(CreateHUD(1680, 1050));  /////////////////////////////////////////////////////////////////////////////
+   viewer.setSceneData(sgRoot);
 
    // Create the OSGUIsh event handler
    osg::ref_ptr<OSGUIsh::EventHandler> guishEH(
@@ -304,13 +304,13 @@ int main(int argc, char* argv[])
          OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::MouseOverFocusPolicy>(),
          OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::MouseDownFocusPolicy>()));
 
-   viewer.addEventHandler(guishEH.get());
+   viewer.addEventHandler(guishEH);
 
    // Add an event handler for changing the policies
    osg::ref_ptr<ChangePolicyEventHandler> focusPolicyEH(
       new ChangePolicyEventHandler(guishEH));
 
-   viewer.addEventHandler(focusPolicyEH.get());
+   viewer.addEventHandler(focusPolicyEH);
 
    // Adds the node to the event handler, so that it can get events
    guishEH->addNode(TreeNode);

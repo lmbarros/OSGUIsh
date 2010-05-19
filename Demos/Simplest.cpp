@@ -15,57 +15,57 @@
 
 void HandleMouseMove(OSGUIsh::HandlerParams& params)
 {
-   std::cout << "Mouse moved on node '" << params.node.get() << "'!\n";
+   std::cout << "Mouse moved on node '" << params.node << "'!\n";
 }
 
 void HandleMouseEnter(OSGUIsh::HandlerParams& params)
 {
-   std::cout << "Entered node '" << params.node.get() << "'!\n";
+   std::cout << "Entered node '" << params.node << "'!\n";
 }
 
 void HandleMouseLeave(OSGUIsh::HandlerParams& params)
 {
-   std::cout << "Left node '" << params.node.get() << "'!\n";
+   std::cout << "Left node '" << params.node << "'!\n";
 }
 
 void HandleMouseDown(OSGUIsh::HandlerParams& params)
 {
-   std::cout << "Mouse down on node '" << params.node.get() << "'!\n";
+   std::cout << "Mouse down on node '" << params.node << "'!\n";
 }
 
 void HandleMouseUp(OSGUIsh::HandlerParams& params)
 {
-   std::cout << "Mouse up on node '" << params.node.get() << "'!\n";
+   std::cout << "Mouse up on node '" << params.node << "'!\n";
 }
 
 void HandleClick(OSGUIsh::HandlerParams& params)
 {
-   std::cout << "Click on node '" << params.node.get() << "'!\n";
+   std::cout << "Click on node '" << params.node << "'!\n";
 }
 
 void HandleDoubleClick(OSGUIsh::HandlerParams& params)
 {
-   std::cout << "Double click on node '" << params.node.get() << "'!\n";
+   std::cout << "Double click on node '" << params.node << "'!\n";
 }
 
 void HandleKeyDown(OSGUIsh::HandlerParams& params)
 {
-   std::cout << "Key down on node '" << params.node.get() << "'!\n";
+   std::cout << "Key down on node '" << params.node << "'!\n";
 }
 
 void HandleKeyUp(OSGUIsh::HandlerParams& params)
 {
-   std::cout << "Key up on node '" << params.node.get() << "'!\n";
+   std::cout << "Key up on node '" << params.node << "'!\n";
 }
 
 void HandleMouseWheelUp(OSGUIsh::HandlerParams& params)
 {
-   std::cout << "Mouse wheel up on node '" << params.node.get() << "'!\n";
+   std::cout << "Mouse wheel up on node '" << params.node << "'!\n";
 }
 
 void HandleMouseWheelDown(OSGUIsh::HandlerParams& params)
 {
-   std::cout << "Mouse wheel down on node '" << params.node.get() << "'!\n";
+   std::cout << "Mouse wheel down on node '" << params.node << "'!\n";
 }
 
 
@@ -85,11 +85,11 @@ int main(int argc, char* argv[])
       exit(1);
    }
 
-   viewer.setSceneData(loadedModel.get());
+   viewer.setSceneData(loadedModel);
 
    // Create the OSGUIsh event handler
    osg::ref_ptr<OSGUIsh::EventHandler> guishEH(new OSGUIsh::EventHandler());
-   viewer.addEventHandler(guishEH.get());
+   viewer.addEventHandler(guishEH);
 
    // Adds the node to the event handler, so that it can get events
    guishEH->addNode(loadedModel);

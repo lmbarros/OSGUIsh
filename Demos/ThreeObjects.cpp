@@ -61,7 +61,7 @@ osg::ref_ptr<osg::Projection> CreateHUD (int width, int height)
    TextMouseOver->setFont("Data/bluehigl.ttf");
    TextMouseOver->setPosition(osg::Vec3 (10.0f, 10.0f, 0.0f));
    TextMouseOver->setCharacterSize(25.0);
-   hudGeometry->addDrawable(TextMouseOver.get());
+   hudGeometry->addDrawable(TextMouseOver);
 
    TextDoubleClicked = new osgText::Text();
    TextDoubleClicked->setDataVariance(osg::Object::DYNAMIC);
@@ -69,7 +69,7 @@ osg::ref_ptr<osg::Projection> CreateHUD (int width, int height)
    TextDoubleClicked->setFont("Data/bluehigl.ttf");
    TextDoubleClicked->setPosition(osg::Vec3 (10.0f, 40.0f, 0.0f));
    TextDoubleClicked->setCharacterSize(25.0);
-   hudGeometry->addDrawable(TextDoubleClicked.get());
+   hudGeometry->addDrawable(TextDoubleClicked);
 
    // Create the HUD per se
    osg::ref_ptr<osg::StateSet> stateSet = hudGeometry->getOrCreateStateSet();
@@ -81,11 +81,11 @@ osg::ref_ptr<osg::Projection> CreateHUD (int width, int height)
    modelviewAbs->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
    modelviewAbs->setMatrix(osg::Matrix::identity());
 
-   modelviewAbs->addChild(hudGeometry.get());
+   modelviewAbs->addChild(hudGeometry);
 
    osg::ref_ptr<osg::Projection> projection(new osg::Projection());
    projection->setMatrix(osg::Matrix::ortho2D(0, width, 0, height));
-   projection->addChild(modelviewAbs.get());
+   projection->addChild(modelviewAbs);
 
    return projection;
 }
@@ -117,22 +117,22 @@ osg::ref_ptr<osg::Group> LoadModels()
    TreeNode->setName("Tree");
    osg::ref_ptr<osg::PositionAttitudeTransform> treePAT(
       new osg::PositionAttitudeTransform());
-   treePAT->addChild(TreeNode.get());
+   treePAT->addChild(TreeNode);
    treePAT->setPosition(osg::Vec3(1.2, 0.0, 0.0));
-   group->addChild(treePAT.get());
+   group->addChild(treePAT);
 
    StrawberryNode = LoadModel("Data/Strawberry.3ds");
    StrawberryNode->setName("Strawberry");
    osg::ref_ptr<osg::PositionAttitudeTransform> strawberryPAT(
       new osg::PositionAttitudeTransform());
-   strawberryPAT->addChild(StrawberryNode.get());
+   strawberryPAT->addChild(StrawberryNode);
    strawberryPAT->setPosition(osg::Vec3(-1.0, 0.0, 0.0));
-   group->addChild(strawberryPAT.get());
+   group->addChild(strawberryPAT);
 
    FishNode = LoadModel("Data/Fish.3ds");
    FishNode->setName("Fish");
 
-   group->addChild(FishNode.get());
+   group->addChild(FishNode);
 
    return group;
 }
@@ -146,14 +146,14 @@ int main(int argc, char* argv[])
    osgViewer::Viewer viewer;
 
    // Construct the scene graph, set it as the data to be viewed
-   osg::ref_ptr<osg::Group> sgRoot = LoadModels().get();
-   sgRoot->addChild(CreateHUD(1680, 1050).get());
-   viewer.setSceneData(sgRoot.get());
+   osg::ref_ptr<osg::Group> sgRoot = LoadModels();
+   sgRoot->addChild(CreateHUD(1680, 1050));
+   viewer.setSceneData(sgRoot);
 
    // Create the OSGUIsh event handler
    osg::ref_ptr<OSGUIsh::EventHandler> guishEH(new OSGUIsh::EventHandler());
 
-   viewer.addEventHandler(guishEH.get());
+   viewer.addEventHandler(guishEH);
 
    // Adds the node to the event handler, so that it can get events
    guishEH->addNode(TreeNode);

@@ -134,8 +134,7 @@ namespace OSGUIsh
       {
          throw std::runtime_error(
             ("Trying to get a signal of an unknown node: '" + node->getName()
-             + "' (" + boost::lexical_cast<std::string>(node.get())
-             + ").").c_str());
+             + "' (" + boost::lexical_cast<std::string>(node) + ").").c_str());
       }
 
       SignalCollection_t::const_iterator signalIter =
