@@ -54,6 +54,14 @@ target_link_libraries(FocusPolicies
 set_property(TARGET FocusPolicies
     PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
+add_executable(HUD Demos/HUD.cpp)
+target_link_libraries(HUD
+    ${OPENSCENEGRAPH_LIBRARIES}
+    ${Boost_LIBRARIES}
+    OSGUIsh)
+set_property(TARGET HUD
+    PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+
 # Copies 'data' to same place as the executable -- it's needed there
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory

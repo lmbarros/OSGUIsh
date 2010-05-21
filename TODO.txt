@@ -1,9 +1,6 @@
 More or less important stuff missing:
 
-
 - Short programming guide
-
-- Demo for using OSGUIsh with HUDs.
 
 - Simplify the policies usage (that "mason" template class is
   ridiculous :-))

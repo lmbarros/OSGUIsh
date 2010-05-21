@@ -101,35 +101,77 @@ namespace OSGUIsh
          bool handle(const osgGA::GUIEventAdapter& ea,
                      osgGA::GUIActionAdapter&);
 
-         // /** Sets the list of root nodes used when picking.
-         //  *  <p>This deserves some words: when using multiple
-         //  *  <tt>osg::CameraNode</tt>s (in particular when using HUDs), picking
-         //  *  in OSG can be problematic. The details of this problem are not
-         //  *  important here (basically, we don't have control on the relative
-         //  *  "z-order" of objects in different <tt>CameraNode</tt>s). But it is
-         //  *  important to know that, if we want to pick objects in different
-         //  *  camera nodes, we may have some unpredictable results.
-         //  *  <p>So, what's the solution? Actually, there is no solution. At
-         //  *  least, not an easy one. So, OSGUIsh uses a list of root nodes when
-         //  *  picking, as a way to offer some control to its users.
-         //  *  <p>Suppose, for instance, that you want to pick both in a group of
-         //  *  objects and in a HUD. By default, OSGUIsh will pick from the root
-         //  *  of the whole scene (objects and HUD), which (as described above)
-         //  *  will not work. So, you call \c setPickingRoots() passing two nodes:
-         //  *  first the HUD, second the group of objects.
-         //  *  <p>Once you do this, OSGUIsh will start picking in two stages.
-         //  *  First, it will try picking the HUD. If it hits something in the
-         //  *  HUD, that hit will be used. If not, OSGUIsh will try picking the
-         //  *  group of objects.
-         //  */
-         // void setPickingRoots (std::vector<NodePtr> newRoot);
+         /// A type representing a sequence of node masks.
+         typedef std::vector<osg::Node::NodeMask> NodeMasks_t;
 
-         // /** Sets the root used by OSGUIsh when picking.
-         //  *  @see setPickingRoots for a longer discussion on how OSGUIsh
-         //  *       performs picking (you can set more than one root, for
-         //  *       example).
-         //  */
-         // void setPickingRoot (NodePtr newRoot);
+         /**
+          * Sets node mask that will be used when picking. The default node mask
+          * is 0xFFFFFFFF, meaning that every node with at least one bit set on
+          * their node masks will be taken into account for picking. (All this
+          * just means that you don't change any setting related to node masks,
+          * OSGUIsh will not ignore any node when picking.)
+          *
+          * So, when should one explicitly set the picking mask? The easy answer
+          * is "whenever one wants to ignore some nodes when picking". (When
+          * picking, OSGUIsh (OSG, in fact) will perform a bitwise AND between
+          * the picking root set here and each node's node mask; if the result
+          * is zero, the node will be ignored.)
+          *
+          * The interesting part is that OSGUIsh supports multiple picking
+          * masks. First, it will try to pick nodes using the first node mask;
+          * if no node is picked, it will try picking using the second picking
+          * mask and so on.
+          *
+          * Creative people may find various uses for this, but the feature was
+          * implemented so that picking could work with HUDs. When using
+          * multiple <tt>osg::Camera</tt>s (as is the case when using HUDs),
+          * picking in OSG can be problematic. The details of this problem are
+          * not important here (anyway, basically, we don't have control on the
+          * relative "z-order" of objects viewed by different
+          * <tt>Camera</tt>s). But it is important to know that, if we want to
+          * pick objects in different camera nodes, we may have some
+          * unpredictable results.
+          *
+          * So, to enable proper picking in HUDs, OSGUIsh can use this scheme of
+          * multiple picking roots.
+          *
+          * @see setPickingMasks() which are the methods capable of setting
+          *      multiple picking roots.
+          *
+          * @param newMask The new node mask to be used when picking.
+          */
+         void setPickingMask(osg::Node::NodeMask newMask);
+
+         /**
+          * Sets the node masks used when picking.
+          * @param newMask1 The first node mask to be tried when picking.
+          * @param newMask2 The second node mask to be tried when picking.
+          * @see setPickingMask for a description of why using multiple picking
+          *      roots can be useful (tip: HUD).
+          */
+         void setPickingMasks(osg::Node::NodeMask newMask1,
+                              osg::Node::NodeMask newMask2);
+
+         /**
+          * Sets the node masks used when picking.
+          * @param newMask1 The first node mask to be tried when picking.
+          * @param newMask2 The second node mask to be tried when picking.
+          * @param newMask3 The third node mask to be tried when picking.
+          * @see setPickingMask for a description of why using multiple picking
+          *      roots can be useful (tip: HUD).
+          */
+         void setPickingMasks(osg::Node::NodeMask newMask1,
+                              osg::Node::NodeMask newMask2,
+                              osg::Node::NodeMask newMask3);
+
+         /**
+          * Sets the node masks used when picking.
+          * @param newMasks A vector with the node masks to be tried when
+          *        picking (they'll be tried in sequence).
+          * @see setPickingMask for a description of why using multiple picking
+          *      roots can be useful (tip: HUD).
+          */
+         void setPickingMasks(const NodeMasks_t& newMasks);
 
          /**
           * A type representing a signal used in OSGUIsh. This signal returns
@@ -271,11 +313,12 @@ namespace OSGUIsh
           */
          bool ignoreBackFaces_;
 
-         // /** The list of root nodes used when picking.
-         //  *  @see setPickingRoots for a discussion on how this is used and why
-         //  *       this is necessary.
-         //  */
-         // std::vector<NodePtr> pickingRoots_;
+         /**
+          * The sequence of node masks used when picking.
+          * @see setPickingRoot for a discussion on how this is used and why
+          *      this is necessary.
+          */
+         NodeMasks_t pickingMasks_;
 
          /**
           * The values to be returned by the \c handle() method, depending on

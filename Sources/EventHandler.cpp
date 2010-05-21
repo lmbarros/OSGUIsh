@@ -12,8 +12,6 @@
 #include "OSGUIsh/EventHandler.hpp"
 #include <boost/lexical_cast.hpp>
 
-#include <iostream> /////////////////////////////////////////////////////////////////////////////
-
 
 namespace OSGUIsh
 {
@@ -34,9 +32,7 @@ namespace OSGUIsh
          timeOfLastClick_[i] = -1.0;
       }
 
-      // // // // // By default, use the viewer's scene root as the only root node when
-      // // // // // picking
-      // // // // pickingRoots_.push_back (viewer_.getSceneData());
+      pickingMasks_.push_back(0xFFFFFFFF); // by default, no restrictions
    }
 
 
@@ -83,21 +79,48 @@ namespace OSGUIsh
 
 
 
-   // // // // // - EventHandler::setPickingRoots ------------------------------------------
-   // // // // void EventHandler::setPickingRoots (std::vector<NodePtr> newRoots)
-   // // // // {
-   // // // //    pickingRoots_ = newRoots;
-   // // // // }
+   // - EventHandler::setPickingMask -------------------------------------------
+   void EventHandler::setPickingMask(osg::Node::NodeMask newMask)
+   {
+      std::vector<osg::Node::NodeMask> masks;
+      pickingMasks_ = std::vector<osg::Node::NodeMask>();
+      pickingMasks_.push_back(newMask);
+   }
 
 
 
-   // // // // // - EventHandler::setPickingRoot -------------------------------------------
-   // // // // void EventHandler::setPickingRoot (NodePtr newRoot)
-   // // // // {
-   // // // //    std::vector<NodePtr> newRoots;
-   // // // //    newRoots.push_back (newRoot);
-   // // // //    setPickingRoots (newRoots);
-   // // // // }
+   // - EventHandler::setPickingMasks ------------------------------------------
+   void EventHandler::setPickingMasks(osg::Node::NodeMask newMask1,
+                                      osg::Node::NodeMask newMask2)
+   {
+      std::vector<osg::Node::NodeMask> masks;
+      pickingMasks_ = std::vector<osg::Node::NodeMask>();
+      pickingMasks_.push_back(newMask1);
+      pickingMasks_.push_back(newMask2);
+   }
+
+
+
+   // - EventHandler::setPickingMasks ------------------------------------------
+   void EventHandler::setPickingMasks(osg::Node::NodeMask newMask1,
+                                      osg::Node::NodeMask newMask2,
+                                      osg::Node::NodeMask newMask3)
+   {
+      std::vector<osg::Node::NodeMask> masks;
+      pickingMasks_ = std::vector<osg::Node::NodeMask>();
+      pickingMasks_.push_back(newMask1);
+      pickingMasks_.push_back(newMask2);
+      pickingMasks_.push_back(newMask3);
+   }
+
+
+
+   // - EventHandler::setPickingMasks ------------------------------------------
+   void EventHandler::setPickingMasks(
+      const std::vector<osg::Node::NodeMask>& newMasks)
+   {
+      pickingMasks_ = newMasks;
+   }
 
 
 
@@ -121,6 +144,7 @@ namespace OSGUIsh
 
 #     undef OSGUISH_EVENTHANDLER_ADD_EVENT
    }
+
 
 
    // - EventHandler::getSignal ------------------------------------------------
@@ -204,19 +228,18 @@ namespace OSGUIsh
    void EventHandler::handleFrameEvent(osgViewer::View* view,
                                        const osgGA::GUIEventAdapter& ea)
    {
-      // // // assert (pickingRoots_.size() > 0);
+      assert (pickingMasks_.size() > 0);
 
       // Find out who is, and who was under the mouse pointer
       NodePtr currentNodeUnderMouse;
       osg::Vec3 currentPositionUnderMouse;
 
-      // // // // typedef std::vector <NodePtr>::iterator iter_t;
-      // // // // for (iter_t p = pickingRoots_.begin(); p != pickingRoots_.end(); ++p)
-      // // // // {
-         // // // // osgUtil::IntersectVisitor::HitList hitList;
+      typedef NodeMasks_t::const_iterator iter_t;
+      for (iter_t p = pickingMasks_.begin(); p != pickingMasks_.end(); ++p)
+      {
          osgUtil::LineSegmentIntersector::Intersections hitList;
-         //////////// can pass the nodepath (to support HUDs/multiple roots)
-         view->computeIntersections(ea.getX(), ea.getY(), hitList);
+
+         view->computeIntersections(ea.getX(), ea.getY(), hitList, *p);
 
          if (hitList.size() > 0)
          {
@@ -266,10 +289,10 @@ namespace OSGUIsh
 
                hitUnderMouse_ = *theHit;
 
-               // // // // // break;
+               break;
             }
          }  // if (hitList.size() > 0)
-      // // // // } // for (...pickingRoots_...)
+      } // for (...pickingMasks_...)
 
       NodePtr prevNodeUnderMouse = nodeUnderMouse_;
       osg::Vec3 prevPositionUnderMouse = positionUnderMouse_;
