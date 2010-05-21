@@ -6,7 +6,7 @@
 project(OSGUIsh)
 cmake_minimum_required(VERSION 2.6)
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "2")
+set(CPACK_PACKAGE_VERSION_MINOR "3")
 
 find_package(OpenSceneGraph 2.8 REQUIRED COMPONENTS osgViewer osgUtil)
 
@@ -62,7 +62,7 @@ target_link_libraries(HUD
 set_property(TARGET HUD
     PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
-# Copies 'data' to same place as the executable -- it's needed there
+# Copies 'Data' to same place as the executable -- it's needed there
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/Data

@@ -1,5 +1,30 @@
+Version 0.3 (02010-05-21)
+~~~~~~~~~~~
+
+Essentially, all this release does is to bring OSGUIsh up to date with
+OSG. This renewing process caused a few side effects:
+
+- The old "multiple root nodes" feature was replaced with a "multiple
+  node masks" feature. It still serves for the same purpose (handling
+  HUDs properly), but the means is a little different. (I liked the
+  old way better, but I just couldn't make
+  osgViewer::View::computeIntersections() work with a NodePath
+  parameter, so I adopted this alternative approach.)
+
+- The support for ignoring backfaces when picking works just
+  partially. Looks like osgViewer::View::computeIntersections()
+  provides less information about the hits than the old
+  osgProducer::Viewer::computeIntersections(), so I could only detect
+  that a face is back facing if there are at least two hits. This
+  *can* be fixed somehow.
+
+As a bonus, I added an example of using a HUD with OSGUIsh.
+
+
+
 Version 0.2 (02006-10-20)
 ~~~~~~~~~~~
+
  - Added a new picking scheme, with multiple "picking roots". Can be
    used to fix problems with picking with multiple 'CameraNodes'.
    That's the case when using HUDs, for example.
@@ -13,16 +38,21 @@ Version 0.2 (02006-10-20)
    demos).
  - Assorted code clean-ups, bug fixes, typo corrections and
    documentation improvements. (But still missing a user's guide.)
+
 Perhaps the two most urgent TODOs are related to documentation:
+
  - A simple user's guide.
  - A demo showing how to use the "multiple picking roots" to perform
    picking correctly when using a HUD.
 
 
+
 Version 0.1 (02006-09-27)
 ~~~~~~~~~~~
+
 First public release, with an unstable interface and the following
 features:
+
  - Support for the following events: "mouse enter", "mouse leave",
    "mouse move", "mouse down", "mouse up", "click", "double click",
    "mouse wheel up", "mouse wheel down", "key up" and "key down".
