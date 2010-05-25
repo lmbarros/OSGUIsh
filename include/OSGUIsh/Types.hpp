@@ -22,8 +22,7 @@ namespace OSGUIsh
    typedef osg::ref_ptr<osg::Node> NodePtr;
 
    /// The type of an intersection (a hit when picking).
-   typedef osgUtil::LineSegmentIntersector::LineSegmentIntersector::Intersection
-   Intersection_t;
+   typedef osgUtil::LineSegmentIntersector::Intersection Intersection_t;
 
 } // namespace OSGUIsh
 
