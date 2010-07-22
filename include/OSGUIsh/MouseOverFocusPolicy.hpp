@@ -17,7 +17,7 @@
 
 namespace OSGUIsh
 {
-   /// A focus policy puts the focus on the node under the mouse pointer.
+   /// A focus policy that puts the focus on the node under the mouse pointer.
    class MouseOverFocusPolicy: public FocusPolicy
    {
       public:
