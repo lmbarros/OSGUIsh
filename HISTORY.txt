@@ -1,8 +1,16 @@
+Version 0.3.1 (02010-07-22)
+~~~~~~~~~~~~~
+
+This release just fixes a problem found with 0.3 before it was
+released. This problem caused compilation problems with Visual C++.
+
+
 Version 0.3 (02010-05-21)
 ~~~~~~~~~~~
 
-Essentially, all this release does is to bring OSGUIsh up to date with
-OSG. This renewing process caused a few side effects:
+This version was not publicly released. Essentially, all this release
+does is to bring OSGUIsh up to date with OSG. This renewing process
+caused a few side effects:
 
 - The old "multiple root nodes" feature was replaced with a "multiple
   node masks" feature. It still serves for the same purpose (handling
