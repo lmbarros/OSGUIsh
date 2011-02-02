@@ -1,2 +1,2 @@
-Diluculum was designed, implemented and is maintained by Leandro Motta
+OSGUISH was designed, implemented and is maintained by Leandro Motta
 Barros.
