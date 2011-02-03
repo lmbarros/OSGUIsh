@@ -44,8 +44,12 @@ namespace OSGUIsh
       switch (ea.getEventType())
       {
          case osgGA::GUIEventAdapter::FRAME:
-            handleFrameEvent(dynamic_cast<osgViewer::View*>(&aa), ea);
+         {
+            osg::View* view = dynamic_cast<osg::View*>(&aa);
+            assert(view != 0 && "Needed an osg::View here.");
+            handleFrameEvent(view, ea);
             break;
+         }
 
          case osgGA::GUIEventAdapter::PUSH:
             handlePushEvent(ea);
@@ -211,7 +215,7 @@ namespace OSGUIsh
       typedef osg::NodePath::const_reverse_iterator iter_t;
       for (iter_t p = nodePath.rbegin(); p != nodePath.rend(); ++p)
       {
-         if (signals_.find (NodePtr(*p)) != signals_.end())
+         if (signals_.find(NodePtr(*p)) != signals_.end())
             return NodePtr(*p);
       }
 
@@ -221,21 +225,35 @@ namespace OSGUIsh
 
 
    // - EventHandler::handleFrameEvent -----------------------------------------
-   void EventHandler::handleFrameEvent(osgViewer::View* view,
+   void EventHandler::handleFrameEvent(osg::View* view,
                                        const osgGA::GUIEventAdapter& ea)
    {
-      assert (pickingMasks_.size() > 0);
+      assert(pickingMasks_.size() > 0);
 
       // Find out who is, and who was under the mouse pointer
       NodePtr currentNodeUnderMouse;
       osg::Vec3 currentPositionUnderMouse;
 
+      const osg::Viewport* vp = view->getCamera()->getViewport();
+      const float x = vp->x() + static_cast<int>(
+         vp->width() * (ea.getXnormalized() * 0.5f + 0.5f));
+      const float y = vp->y() + static_cast<int>(
+         vp->height() * (ea.getYnormalized() * 0.5f + 0.5f));
+
       typedef NodeMasks_t::const_iterator iter_t;
       for (iter_t p = pickingMasks_.begin(); p != pickingMasks_.end(); ++p)
       {
-         osgUtil::LineSegmentIntersector::Intersections hitList;
+         osg::ref_ptr<osgUtil::LineSegmentIntersector> picker(
+            new osgUtil::LineSegmentIntersector(
+               osgUtil::Intersector::WINDOW, x, y));
 
-         view->computeIntersections(ea.getX(), ea.getY(), hitList, *p);
+         osgUtil::IntersectionVisitor iv(picker);
+         iv.setTraversalMask(*p);
+
+         view->getCamera()->accept(iv);
+
+         const osgUtil::LineSegmentIntersector::Intersections hitList =
+            picker->getIntersections();
 
          if (hitList.size() > 0)
          {
