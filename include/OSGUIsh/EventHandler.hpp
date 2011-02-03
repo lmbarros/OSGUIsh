@@ -2,7 +2,7 @@
 * EventHandler.hpp                                                             *
 * An event handler providing GUI-like events                                   *
 *                                                                              *
-* Copyright (C) 2006-2010 by Leandro Motta Barros.                             *
+* Copyright (C) 2006-2011 by Leandro Motta Barros.                             *
 *                                                                              *
 * This program is distributed under the OpenSceneGraph Public License. You     *
 * should have received a copy of it with the source distribution, in a file    *
@@ -16,6 +16,7 @@
 #include <osgGA/GUIEventHandler>
 #include <osgUtil/LineSegmentIntersector>
 #include <osgViewer/View>
+#include <OSGUIsh/Events.hpp>
 #include <OSGUIsh/FocusPolicy.hpp>
 #include <OSGUIsh/ManualFocusPolicy.hpp>
 
@@ -195,17 +196,13 @@ namespace OSGUIsh
           * Returns a signal associated with a given node. This is typically
           * used to call \c connect() on the returned signal.
           * @param node The desired node.
-          * @param signal The desired signal. Valid signals are
-          *        <tt>"MouseEnter"</tt>, <tt>"MouseLeave"</tt>,
-          *        <tt>"MouseMove"</tt>, <tt>"MouseDown"</tt>,
-          *        <tt>"MouseUp"</tt>, <tt>"Click"</tt>, <tt>"DoubleClick"</tt>,
-          *        <tt>"MouseWheelUp"</tt>, <tt>"MouseWheelDown"</tt>,
-          *        <tt>"KeyUp"</tt> and <tt>"KeyDown"</tt>.
+          * @param signal The desired signal.
           * @note The "mouse move" event is "relative": if the mouse is not
           *       moving, but a node is moving "below" it, mouse move events
           *       will be generated.
           */
-         SignalPtr getSignal(const NodePtr node, const std::string& signal);
+
+         SignalPtr getSignal(const NodePtr node, Event signal);
 
          /**
           * Ignores or stops to ignore faces that are back-facing the viewer
@@ -331,8 +328,8 @@ namespace OSGUIsh
           */
          std::map <osgGA::GUIEventAdapter::EventType, bool> handleReturnValues_;
 
-         /// Type mapping a signal name to the signal object.
-         typedef std::map <std::string, SignalPtr> SignalCollection_t;
+         /// Type mapping an event type to the signal object.
+         typedef std::map <Event, SignalPtr> SignalCollection_t;
 
          /// Type mapping nodes to the collection of signals associated to it.
          typedef std::map <NodePtr, SignalCollection_t > SignalsMap_t;

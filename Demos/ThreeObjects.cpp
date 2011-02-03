@@ -160,12 +160,18 @@ int main(int argc, char* argv[])
    guishEH->addNode(StrawberryNode);
 
    // Register event handlers
-   guishEH->getSignal(TreeNode, "MouseEnter")->connect(&HandleMouseEnter);
-   guishEH->getSignal(StrawberryNode, "MouseEnter")->connect(&HandleMouseEnter);
-   guishEH->getSignal(TreeNode, "MouseLeave")->connect(&HandleMouseLeave);
-   guishEH->getSignal(StrawberryNode, "MouseLeave")->connect(&HandleMouseLeave);
-   guishEH->getSignal(StrawberryNode, "DoubleClick")->connect(&HandleDoubleClickStrawberry);
-   guishEH->getSignal(TreeNode, "DoubleClick")->connect(&HandleDoubleClickTree);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_DOUBLE_CLICK)
+      ->connect(&HandleDoubleClickStrawberry);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_DOUBLE_CLICK)
+      ->connect(&HandleDoubleClickTree);
 
    // Enter rendering loop
    viewer.run();

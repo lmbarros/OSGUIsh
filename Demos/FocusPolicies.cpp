@@ -319,25 +319,40 @@ int main(int argc, char* argv[])
    guishEH->addNode(FishNode);
 
    // Register event handlers
-   guishEH->getSignal(TreeNode, "MouseEnter")->connect(&HandleMouseEnter);
-   guishEH->getSignal(StrawberryNode, "MouseEnter")->connect(&HandleMouseEnter);
-   guishEH->getSignal(FishNode, "MouseEnter")->connect(&HandleMouseEnter);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
+   guishEH->getSignal(FishNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
 
-   guishEH->getSignal(TreeNode, "MouseLeave")->connect(&HandleMouseLeave);
-   guishEH->getSignal(StrawberryNode, "MouseLeave")->connect(&HandleMouseLeave);
-   guishEH->getSignal(FishNode, "MouseLeave")->connect(&HandleMouseLeave);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
+   guishEH->getSignal(FishNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
 
-   guishEH->getSignal(TreeNode, "MouseWheelUp")->connect(&HandleMouseWheelUp);
-   guishEH->getSignal(StrawberryNode, "MouseWheelUp")->connect(&HandleMouseWheelUp);
-   guishEH->getSignal(FishNode, "MouseWheelUp")->connect(&HandleMouseWheelUp);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_MOUSE_WHEEL_UP)
+      ->connect(&HandleMouseWheelUp);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_MOUSE_WHEEL_UP)
+      ->connect(&HandleMouseWheelUp);
+   guishEH->getSignal(FishNode, OSGUIsh::EVENT_MOUSE_WHEEL_UP)
+      ->connect(&HandleMouseWheelUp);
 
-   guishEH->getSignal(TreeNode, "MouseWheelDown")->connect(&HandleMouseWheelDown);
-   guishEH->getSignal(StrawberryNode, "MouseWheelDown")->connect(&HandleMouseWheelDown);
-   guishEH->getSignal(FishNode, "MouseWheelDown")->connect(&HandleMouseWheelDown);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_MOUSE_WHEEL_DOWN)
+      ->connect(&HandleMouseWheelDown);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_MOUSE_WHEEL_DOWN)
+      ->connect(&HandleMouseWheelDown);
+   guishEH->getSignal(FishNode, OSGUIsh::EVENT_MOUSE_WHEEL_DOWN)
+      ->connect(&HandleMouseWheelDown);
 
-   guishEH->getSignal(TreeNode, "KeyDown")->connect(&HandleKeyDown);
-   guishEH->getSignal(StrawberryNode, "KeyDown")->connect(&HandleKeyDown);
-   guishEH->getSignal(FishNode, "KeyDown")->connect(&HandleKeyDown);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_KEY_DOWN)
+      ->connect(&HandleKeyDown);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_KEY_DOWN)
+      ->connect(&HandleKeyDown);
+   guishEH->getSignal(FishNode, OSGUIsh::EVENT_KEY_DOWN)
+      ->connect(&HandleKeyDown);
 
    // Enter rendering loop
    viewer.run();

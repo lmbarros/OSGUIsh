@@ -2,7 +2,7 @@
 * EventHandler.cpp                                                             *
 * An event handler providing GUI-like events                                   *
 *                                                                              *
-* Copyright (C) 2006-2010 by Leandro Motta Barros.                             *
+* Copyright (C) 2006-2011 by Leandro Motta Barros.                             *
 *                                                                              *
 * This program is distributed under the OpenSceneGraph Public License. You     *
 * should have received a copy of it with the source distribution, in a file    *
@@ -128,19 +128,19 @@ namespace OSGUIsh
    void EventHandler::addNode(const osg::ref_ptr<osg::Node> node)
    {
 #     define OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT) \
-         signals_[node][#EVENT] = SignalPtr(new EventHandler::Signal_t());
+         signals_[node][EVENT] = SignalPtr(new EventHandler::Signal_t());
 
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseEnter);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseLeave);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseMove);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseDown);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseUp);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(Click);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(DoubleClick);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseWheelUp);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseWheelDown);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(KeyUp);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(KeyDown);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_ENTER);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_LEAVE);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_MOVE);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_DOWN);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_UP);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_CLICK);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_DOUBLE_CLICK);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_WHEEL_UP);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_WHEEL_DOWN);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_KEY_UP);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_KEY_DOWN);
 
 #     undef OSGUISH_EVENTHANDLER_ADD_EVENT
    }
@@ -148,8 +148,7 @@ namespace OSGUIsh
 
 
    // - EventHandler::getSignal ------------------------------------------------
-   EventHandler::SignalPtr EventHandler::getSignal(
-      const NodePtr node, const std::string& signal)
+   EventHandler::SignalPtr EventHandler::getSignal(NodePtr node, Event signal)
    {
        SignalsMap_t::const_iterator signalsCollectionIter =
           signals_.find (node);
@@ -162,13 +161,10 @@ namespace OSGUIsh
       }
 
       SignalCollection_t::const_iterator signalIter =
-         signalsCollectionIter->second.find (signal);
+         signalsCollectionIter->second.find(signal);
 
-      if (signalIter == signalsCollectionIter->second.end())
-      {
-         throw std::runtime_error (("Trying to get an unknown signal: '"
-                                    + signal + "'.").c_str());
-      }
+      assert(signalIter != signalsCollectionIter->second.end()
+             && "Trying to get an unknown signal.");
 
       return signalIter->second;
    }
@@ -307,7 +303,8 @@ namespace OSGUIsh
              && currentPositionUnderMouse != prevPositionUnderMouse)
          {
             HandlerParams params (currentNodeUnderMouse, ea, hitUnderMouse_);
-            signals_[currentNodeUnderMouse]["MouseMove"]->operator()(params);
+            signals_[currentNodeUnderMouse][EVENT_MOUSE_MOVE]
+               ->operator()(params);
          }
       }
       else // currentNodeUnderMouse != prevNodeUnderMouse
@@ -315,13 +312,14 @@ namespace OSGUIsh
          if (prevNodeUnderMouse.valid())
          {
             HandlerParams params (prevNodeUnderMouse, ea, hitUnderMouse_);
-            signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(params);
+            signals_[prevNodeUnderMouse][EVENT_MOUSE_LEAVE]->operator()(params);
          }
 
          if (currentNodeUnderMouse.valid())
          {
             HandlerParams params (currentNodeUnderMouse, ea, hitUnderMouse_);
-            signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(params);
+            signals_[currentNodeUnderMouse][EVENT_MOUSE_ENTER]
+               ->operator()(params);
          }
       }
    }
@@ -335,7 +333,7 @@ namespace OSGUIsh
       if (nodeUnderMouse_.valid())
       {
          HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
-         signals_[nodeUnderMouse_]["MouseDown"]->operator()(params);
+         signals_[nodeUnderMouse_][EVENT_MOUSE_DOWN]->operator()(params);
       }
 
       // Do the bookkeeping for "Click" and "DoubleClick"
@@ -356,13 +354,13 @@ namespace OSGUIsh
 
          // First the trivial case: the "MouseUp" event
          HandlerParams params(nodeUnderMouse_, ea, hitUnderMouse_);
-         signals_[nodeUnderMouse_]["MouseUp"]->operator()(params);
+         signals_[nodeUnderMouse_][EVENT_MOUSE_UP]->operator()(params);
 
          // Now, the trickier ones: "Click" and "DoubleClick"
          if (nodeUnderMouse_ == nodeThatGotMouseDown_[button])
          {
             HandlerParams params(nodeUnderMouse_, ea, hitUnderMouse_);
-            signals_[nodeUnderMouse_]["Click"]->operator()(params);
+            signals_[nodeUnderMouse_][EVENT_CLICK]->operator()(params);
 
             const double now = ea.getTime();
 
@@ -370,7 +368,8 @@ namespace OSGUIsh
                 && nodeUnderMouse_ == nodeThatGotClick_[button])
             {
                HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
-               signals_[nodeUnderMouse_]["DoubleClick"]->operator()(params);
+               signals_[nodeUnderMouse_][EVENT_DOUBLE_CLICK]
+                  ->operator()(params);
             }
 
             nodeThatGotClick_[button] = nodeUnderMouse_;
@@ -385,7 +384,7 @@ namespace OSGUIsh
    void EventHandler::handleKeyDownEvent(const osgGA::GUIEventAdapter& ea)
    {
       HandlerParams params(kbdFocus_, ea, hitUnderMouse_);
-      signals_[kbdFocus_]["KeyDown"]->operator()(params);
+      signals_[kbdFocus_][EVENT_KEY_DOWN]->operator()(params);
    }
 
 
@@ -394,7 +393,7 @@ namespace OSGUIsh
    void EventHandler::handleKeyUpEvent(const osgGA::GUIEventAdapter& ea)
    {
       HandlerParams params(kbdFocus_, ea, hitUnderMouse_);
-      signals_[kbdFocus_]["KeyUp"]->operator()(params);
+      signals_[kbdFocus_][EVENT_KEY_UP]->operator()(params);
    }
 
 
@@ -407,14 +406,14 @@ namespace OSGUIsh
          case osgGA::GUIEventAdapter::SCROLL_UP:
          {
             HandlerParams params(wheelFocus_, ea, hitUnderMouse_);
-            signals_[wheelFocus_]["MouseWheelUp"]->operator()(params);
+            signals_[wheelFocus_][EVENT_MOUSE_WHEEL_UP]->operator()(params);
             break;
          }
 
          case osgGA::GUIEventAdapter::SCROLL_DOWN:
          {
             HandlerParams params(wheelFocus_, ea, hitUnderMouse_);
-            signals_[wheelFocus_]["MouseWheelDown"]->operator()(params);
+            signals_[wheelFocus_][EVENT_MOUSE_WHEEL_DOWN]->operator()(params);
             break;
          }
 

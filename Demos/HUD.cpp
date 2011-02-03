@@ -209,21 +209,33 @@ int main(int argc, char* argv[])
    guishEH->addNode(HUDFishNode);
 
    // Register event handlers
-   guishEH->getSignal(TreeNode, "MouseEnter")->connect(&HandleMouseEnter);
-   guishEH->getSignal(StrawberryNode, "MouseEnter")->connect(&HandleMouseEnter);
-   guishEH->getSignal(FishNode, "MouseEnter")->connect(&HandleMouseEnter);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
+   guishEH->getSignal(FishNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
 
-   guishEH->getSignal(TreeNode, "MouseLeave")->connect(&HandleMouseLeave);
-   guishEH->getSignal(StrawberryNode, "MouseLeave")->connect(&HandleMouseLeave);
-   guishEH->getSignal(FishNode, "MouseLeave")->connect(&HandleMouseLeave);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
+   guishEH->getSignal(FishNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
 
-   guishEH->getSignal(HUDTreeNode, "MouseEnter")->connect(&HandleMouseEnter);
-   guishEH->getSignal(HUDStrawberryNode, "MouseEnter")->connect(&HandleMouseEnter);
-   guishEH->getSignal(HUDFishNode, "MouseEnter")->connect(&HandleMouseEnter);
+   guishEH->getSignal(HUDTreeNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
+   guishEH->getSignal(HUDStrawberryNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
+   guishEH->getSignal(HUDFishNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
 
-   guishEH->getSignal(HUDTreeNode, "MouseLeave")->connect(&HandleMouseLeave);
-   guishEH->getSignal(HUDStrawberryNode, "MouseLeave")->connect(&HandleMouseLeave);
-   guishEH->getSignal(HUDFishNode, "MouseLeave")->connect(&HandleMouseLeave);
+   guishEH->getSignal(HUDTreeNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
+   guishEH->getSignal(HUDStrawberryNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
+   guishEH->getSignal(HUDFishNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
 
    // Pick first the HUD, then the scene.
    guishEH->setPickingMasks(HUD_MASK, SCENE_MASK);
