@@ -18,11 +18,14 @@ namespace OSGUIsh
    // - EventHandler::EventHandler ---------------------------------------------
    EventHandler::EventHandler(
       const FocusPolicyFactory& kbdPolicyFactory,
-      const FocusPolicyFactory& wheelPolicyFactory)
-      : ignoreBackFaces_(false),
+      const FocusPolicyFactory& wheelPolicyFactory,
+      double pickerRadius)
+      : pickerRadius_(pickerRadius), ignoreBackFaces_(false),
         kbdFocusPolicy_(kbdPolicyFactory.create (kbdFocus_)),
         wheelFocusPolicy_(wheelPolicyFactory.create (wheelFocus_))
    {
+      assert(pickerRadius_ >= 0.0 && "Cannot use negative picker radius");
+
       addNode (NodePtr());
 
       for (int i = 0; i < MOUSE_BUTTON_COUNT; ++i)
@@ -230,114 +233,31 @@ namespace OSGUIsh
    {
       assert(pickingMasks_.size() > 0);
 
-      // Find out who is, and who was under the mouse pointer
-      NodePtr currentNodeUnderMouse;
-      osg::Vec3 currentPositionUnderMouse;
-
-      const osg::Viewport* vp = view->getCamera()->getViewport();
-      const float x = vp->x() + static_cast<int>(
-         vp->width() * (ea.getXnormalized() * 0.5f + 0.5f));
-      const float y = vp->y() + static_cast<int>(
-         vp->height() * (ea.getYnormalized() * 0.5f + 0.5f));
-
-      typedef NodeMasks_t::const_iterator iter_t;
-      for (iter_t p = pickingMasks_.begin(); p != pickingMasks_.end(); ++p)
-      {
-         osg::ref_ptr<osgUtil::LineSegmentIntersector> picker(
-            new osgUtil::LineSegmentIntersector(
-               osgUtil::Intersector::WINDOW, x, y));
-
-         osgUtil::IntersectionVisitor iv(picker);
-         iv.setTraversalMask(*p);
-
-         view->getCamera()->accept(iv);
-
-         const osgUtil::LineSegmentIntersector::Intersections hitList =
-            picker->getIntersections();
-
-         if (hitList.size() > 0)
-         {
-            typedef
-               osgUtil::LineSegmentIntersector::Intersections::const_iterator
-               iter_t;
-
-            iter_t theHit = hitList.end();
-
-            // This implementation needs two or more hits to correctly ignore
-            // back faces. There is a little more detail about this in the
-            // Doxygen comments for \c ignoreBackFaces().
-            if (ignoreBackFaces_ && hitList.size() >= 2)
-            {
-               const osg::Vec3 begin =
-                  hitList.begin()->getWorldIntersectPoint();
-               const osg::Vec3 end =
-                  (--hitList.end())->getWorldIntersectPoint();
-
-               osg::Vec3 rayDir = end - begin;
-               rayDir.normalize();
-
-               for (iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
-               {
-                  const bool frontFacing =
-                     rayDir * hit->getWorldIntersectNormal() < 0.0;
-
-                  if (frontFacing)
-                  {
-                     theHit = hit;
-                     break;
-                  }
-               }
-            }
-            else // !ignoreBackFaces_
-            {
-               theHit = hitList.begin();
-            }
-
-            if (theHit != hitList.end())
-            {
-               currentNodeUnderMouse = getObservedNode (theHit->nodePath);
-               assert (signals_.find (currentNodeUnderMouse) != signals_.end()
-                       && "'getObservedNode()' returned an invalid value!");
-
-               currentPositionUnderMouse = theHit->getLocalIntersectPoint();
-
-               hitUnderMouse_ = *theHit;
-
-               break;
-            }
-         }  // if (hitList.size() > 0)
-      } // for (...pickingMasks_...)
-
-      NodePtr prevNodeUnderMouse = nodeUnderMouse_;
-      osg::Vec3 prevPositionUnderMouse = positionUnderMouse_;
-
-      nodeUnderMouse_ = currentNodeUnderMouse;
-      positionUnderMouse_ = currentPositionUnderMouse;
+      updatePickingData(view, ea);
 
       // Trigger the events
-      if (currentNodeUnderMouse == prevNodeUnderMouse)
+      if (nodeUnderMouse_ == prevNodeUnderMouse_)
       {
-         if (prevNodeUnderMouse.valid()
-             && currentPositionUnderMouse != prevPositionUnderMouse)
+         if (prevNodeUnderMouse_.valid()
+             && positionUnderMouse_ != prevPositionUnderMouse_)
          {
-            HandlerParams params (currentNodeUnderMouse, ea, hitUnderMouse_);
-            signals_[currentNodeUnderMouse][EVENT_MOUSE_MOVE]
-               ->operator()(params);
+            HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
+            signals_[nodeUnderMouse_][EVENT_MOUSE_MOVE]->operator()(params);
          }
       }
-      else // currentNodeUnderMouse != prevNodeUnderMouse
+      else // nodeUnderMouse != prevNodeUnderMouse_
       {
-         if (prevNodeUnderMouse.valid())
+         if (prevNodeUnderMouse_.valid())
          {
-            HandlerParams params (prevNodeUnderMouse, ea, hitUnderMouse_);
-            signals_[prevNodeUnderMouse][EVENT_MOUSE_LEAVE]->operator()(params);
+            HandlerParams params (prevNodeUnderMouse_, ea, hitUnderMouse_);
+            signals_[prevNodeUnderMouse_][EVENT_MOUSE_LEAVE]
+               ->operator()(params);
          }
 
-         if (currentNodeUnderMouse.valid())
+         if (nodeUnderMouse_.valid())
          {
-            HandlerParams params (currentNodeUnderMouse, ea, hitUnderMouse_);
-            signals_[currentNodeUnderMouse][EVENT_MOUSE_ENTER]
-               ->operator()(params);
+            HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
+            signals_[nodeUnderMouse_][EVENT_MOUSE_ENTER]->operator()(params);
          }
       }
    }
@@ -460,6 +380,119 @@ namespace OSGUIsh
                    "a mouse event?");
          }
       }
+   }
+
+
+
+   // - EventHandler::updatePickingData ----------------------------------------
+   void EventHandler::updatePickingData(
+      osg::View* view, const osgGA::GUIEventAdapter& ea)
+   {
+      assert(pickerRadius_ >= 0.0 && "Cannot use negative picker radius");
+
+      if (pickerRadius_ > 0.0)
+         updatePickingDataPolytope(view, ea);
+      else
+         updatePickingDataLine(view, ea);
+   }
+
+
+
+   // - EventHandler::updatePickingDataLine ------------------------------------
+   void EventHandler::updatePickingDataLine(
+      osg::View* view, const osgGA::GUIEventAdapter& ea)
+   {
+      const osg::Viewport* vp = view->getCamera()->getViewport();
+
+      const float x = vp->x() + static_cast<int>(
+         vp->width() * (ea.getXnormalized() * 0.5f + 0.5f));
+      const float y = vp->y() + static_cast<int>(
+         vp->height() * (ea.getYnormalized() * 0.5f + 0.5f));
+
+      NodePtr currentNodeUnderMouse;
+      osg::Vec3 currentPositionUnderMouse;
+
+      typedef NodeMasks_t::const_iterator iter_t;
+      for (iter_t p = pickingMasks_.begin(); p != pickingMasks_.end(); ++p)
+      {
+         osg::ref_ptr<osgUtil::LineSegmentIntersector> picker(
+            new osgUtil::LineSegmentIntersector(
+               osgUtil::Intersector::WINDOW, x, y));
+
+         osgUtil::IntersectionVisitor iv(picker);
+         iv.setTraversalMask(*p);
+
+         view->getCamera()->accept(iv);
+
+         const osgUtil::LineSegmentIntersector::Intersections hitList =
+            picker->getIntersections();
+
+         if (hitList.size() > 0)
+         {
+            typedef
+               osgUtil::LineSegmentIntersector::Intersections::const_iterator
+               iter_t;
+
+            iter_t theHit = hitList.end();
+
+            // This implementation needs two or more hits to correctly ignore
+            // back faces. There is a little more detail about this in the
+            // Doxygen comments for \c ignoreBackFaces().
+            if (ignoreBackFaces_ && hitList.size() >= 2)
+            {
+               const osg::Vec3 begin =
+                  hitList.begin()->getWorldIntersectPoint();
+               const osg::Vec3 end =
+                  (--hitList.end())->getWorldIntersectPoint();
+
+               osg::Vec3 rayDir = end - begin;
+               rayDir.normalize();
+
+               for (iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
+               {
+                  const bool frontFacing =
+                     rayDir * hit->getWorldIntersectNormal() < 0.0;
+
+                  if (frontFacing)
+                  {
+                     theHit = hit;
+                     break;
+                  }
+               }
+            }
+            else // !ignoreBackFaces_
+            {
+               theHit = hitList.begin();
+            }
+
+            if (theHit != hitList.end())
+            {
+               currentNodeUnderMouse = getObservedNode (theHit->nodePath);
+               assert (signals_.find (currentNodeUnderMouse) != signals_.end()
+                       && "'getObservedNode()' returned an invalid value!");
+
+               currentPositionUnderMouse = theHit->getLocalIntersectPoint();
+
+               hitUnderMouse_ = *theHit;
+
+               break;
+            }
+         }  // if (hitList.size() > 0)
+      } // for (...pickingMasks_...)
+
+      prevNodeUnderMouse_ = nodeUnderMouse_;
+      prevPositionUnderMouse_ = positionUnderMouse_;
+
+      nodeUnderMouse_ = currentNodeUnderMouse;
+      positionUnderMouse_ = currentPositionUnderMouse;
+   }
+
+
+
+   // - EventHandler::updatePickingDataPolytope --------------------------------
+   void EventHandler::updatePickingDataPolytope(
+      osg::View* view, const osgGA::GUIEventAdapter& ea)
+   {
    }
 
 } // namespace OSGUIsh
