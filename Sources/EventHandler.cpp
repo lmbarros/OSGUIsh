@@ -13,6 +13,31 @@
 #include <boost/lexical_cast.hpp>
 
 
+namespace
+{
+   /**
+    * Checks if a given intersection hit has hit a front-facing face.
+    * @param camera The camera used to view scene. This is used as the starting
+    *        point of the ray cast into the scene to do the picking.
+    * @param hit The structure describing the intersection.
+    */
+   bool IsFrontFacing(const osg::Camera* camera,
+                     const osgUtil::LineSegmentIntersector::Intersection& hit)
+   {
+      osg::Vec3 eye;
+      osg::Vec3 center;
+      osg::Vec3 up;
+      camera->getViewMatrixAsLookAt(eye, center, up);
+
+      osg::Vec3 rayDir = hit.getWorldIntersectPoint() - eye;
+      rayDir.normalize();
+
+      return rayDir * hit.getWorldIntersectNormal() < 0.0;
+   }
+
+} // (anonymous) namespace
+
+
 namespace OSGUIsh
 {
    // - EventHandler::EventHandler ---------------------------------------------
@@ -435,25 +460,11 @@ namespace OSGUIsh
 
             iter_t theHit = hitList.end();
 
-            // This implementation needs two or more hits to correctly ignore
-            // back faces. There is a little more detail about this in the
-            // Doxygen comments for \c ignoreBackFaces().
             if (ignoreBackFaces_ && hitList.size() >= 2)
             {
-               const osg::Vec3 begin =
-                  hitList.begin()->getWorldIntersectPoint();
-               const osg::Vec3 end =
-                  (--hitList.end())->getWorldIntersectPoint();
-
-               osg::Vec3 rayDir = end - begin;
-               rayDir.normalize();
-
                for (iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
                {
-                  const bool frontFacing =
-                     rayDir * hit->getWorldIntersectNormal() < 0.0;
-
-                  if (frontFacing)
+                  if (IsFrontFacing(view->getCamera(), *hit))
                   {
                      theHit = hit;
                      break;
