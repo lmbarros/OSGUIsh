@@ -150,8 +150,9 @@ int main(int argc, char* argv[])
    sgRoot->addChild(CreateHUD(1024, 768));
    viewer.setSceneData(sgRoot);
 
-   // Create the OSGUIsh event handler
-   osg::ref_ptr<OSGUIsh::EventHandler> guishEH(new OSGUIsh::EventHandler());
+   // Create the OSGUIsh event handler. For testing purposes, use a positive
+   // picking radius, even though this will not make much difference.
+   osg::ref_ptr<OSGUIsh::EventHandler> guishEH(new OSGUIsh::EventHandler(0.01));
 
    viewer.addEventHandler(guishEH);
 

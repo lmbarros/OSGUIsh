@@ -22,17 +22,24 @@ namespace
     * @param hit The structure describing the intersection.
     */
    bool IsFrontFacing(const osg::Camera* camera,
-                     const osgUtil::LineSegmentIntersector::Intersection& hit)
+                      const OSGUIsh::Intersection_t& hit)
    {
+      // If we don't have a reliable normal vector, pretend the face is
+      // front-facing. (This handles the PolytopeIntersector case, which does
+      // not provide normals for the intersections.)
+      if (hit.worldIntersectionNormal == osg::Vec3(0.0, 0.0, 0.0))
+         return true;
+
+      // Do the real is-front-facing test
       osg::Vec3 eye;
       osg::Vec3 center;
       osg::Vec3 up;
       camera->getViewMatrixAsLookAt(eye, center, up);
 
-      osg::Vec3 rayDir = hit.getWorldIntersectPoint() - eye;
+      osg::Vec3 rayDir = hit.worldIntersectionPoint - eye;
       rayDir.normalize();
 
-      return rayDir * hit.getWorldIntersectNormal() < 0.0;
+      return rayDir * hit.worldIntersectionNormal < 0.0;
    }
 
 } // (anonymous) namespace
@@ -42,16 +49,16 @@ namespace OSGUIsh
 {
    // - EventHandler::EventHandler ---------------------------------------------
    EventHandler::EventHandler(
+      double pickerRadius,
       const FocusPolicyFactory& kbdPolicyFactory,
-      const FocusPolicyFactory& wheelPolicyFactory,
-      double pickerRadius)
+      const FocusPolicyFactory& wheelPolicyFactory)
       : pickerRadius_(pickerRadius), ignoreBackFaces_(false),
-        kbdFocusPolicy_(kbdPolicyFactory.create (kbdFocus_)),
-        wheelFocusPolicy_(wheelPolicyFactory.create (wheelFocus_))
+        kbdFocusPolicy_(kbdPolicyFactory.create(kbdFocus_)),
+        wheelFocusPolicy_(wheelPolicyFactory.create(wheelFocus_))
    {
       assert(pickerRadius_ >= 0.0 && "Cannot use negative picker radius");
 
-      addNode (NodePtr());
+      addNode(NodePtr());
 
       for (int i = 0; i < MOUSE_BUTTON_COUNT; ++i)
       {
@@ -183,7 +190,7 @@ namespace OSGUIsh
    EventHandler::SignalPtr EventHandler::getSignal(NodePtr node, Event signal)
    {
        SignalsMap_t::const_iterator signalsCollectionIter =
-          signals_.find (node);
+          signals_.find(node);
 
       if (signalsCollectionIter == signals_.end())
       {
@@ -300,7 +307,7 @@ namespace OSGUIsh
       }
 
       // Do the bookkeeping for "Click" and "DoubleClick"
-      MouseButton button = getMouseButton (ea);
+      MouseButton button = getMouseButton(ea);
       nodeThatGotMouseDown_[button] = nodeUnderMouse_;
    }
 
@@ -313,7 +320,7 @@ namespace OSGUIsh
 
       if (nodeUnderMouse_.valid())
       {
-         MouseButton button = getMouseButton (ea);
+         MouseButton button = getMouseButton(ea);
 
          // First the trivial case: the "MouseUp" event
          HandlerParams params(nodeUnderMouse_, ea, hitUnderMouse_);
@@ -478,13 +485,13 @@ namespace OSGUIsh
 
             if (theHit != hitList.end())
             {
-               currentNodeUnderMouse = getObservedNode (theHit->nodePath);
-               assert (signals_.find (currentNodeUnderMouse) != signals_.end()
-                       && "'getObservedNode()' returned an invalid value!");
+               currentNodeUnderMouse = getObservedNode(theHit->nodePath);
+               assert(signals_.find(currentNodeUnderMouse) != signals_.end()
+                      && "'getObservedNode()' returned an invalid value!");
 
                currentPositionUnderMouse = theHit->getLocalIntersectPoint();
 
-               hitUnderMouse_ = *theHit;
+               hitUnderMouse_ = Intersection_t(*theHit);
 
                break;
             }
@@ -504,6 +511,55 @@ namespace OSGUIsh
    void EventHandler::updatePickingDataPolytope(
       osg::View* view, const osgGA::GUIEventAdapter& ea)
    {
+      const osg::Viewport* vp = view->getCamera()->getViewport();
+
+      const float x = vp->x() + static_cast<int>(
+         vp->width() * (ea.getXnormalized() * 0.5f + 0.5f));
+      const float y = vp->y() + static_cast<int>(
+         vp->height() * (ea.getYnormalized() * 0.5f + 0.5f));
+
+      NodePtr currentNodeUnderMouse;
+      osg::Vec3 currentPositionUnderMouse;
+
+      typedef NodeMasks_t::const_iterator iter_t;
+      for (iter_t p = pickingMasks_.begin(); p != pickingMasks_.end(); ++p)
+      {
+         const float dx = vp->width() * pickerRadius_;
+         const float dy = (vp->height() / vp->width()) * dx;
+         osg::ref_ptr<osgUtil::PolytopeIntersector> picker(
+            new osgUtil::PolytopeIntersector(
+               osgUtil::Intersector::WINDOW, x-dx, y-dy, x+dx, y+dy));
+
+         osgUtil::IntersectionVisitor iv(picker);
+         iv.setTraversalMask(*p);
+
+         view->getCamera()->accept(iv);
+
+         const osgUtil::PolytopeIntersector::Intersections hitList =
+            picker->getIntersections();
+
+         if (hitList.size() == 0)
+            continue;
+
+         typedef osgUtil::PolytopeIntersector::Intersections::const_iterator
+            iter_t;
+
+         iter_t theHit = hitList.begin();
+
+         currentNodeUnderMouse = getObservedNode(theHit->nodePath);
+         assert(signals_.find(currentNodeUnderMouse) != signals_.end()
+                && "'getObservedNode()' returned an invalid value!");
+
+         currentPositionUnderMouse = theHit->localIntersectionPoint;
+
+         hitUnderMouse_ = *theHit;
+      }
+
+      prevNodeUnderMouse_ = nodeUnderMouse_;
+      prevPositionUnderMouse_ = positionUnderMouse_;
+
+      nodeUnderMouse_ = currentNodeUnderMouse;
+      positionUnderMouse_ = currentPositionUnderMouse;
    }
 
 } // namespace OSGUIsh

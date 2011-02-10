@@ -25,7 +25,8 @@ set(OSGUIshSources
     Sources/FocusPolicy.cpp
     Sources/ManualFocusPolicy.cpp
     Sources/MouseDownFocusPolicy.cpp
-    Sources/MouseOverFocusPolicy.cpp)
+    Sources/MouseOverFocusPolicy.cpp
+    Sources/Types.cpp)
 
 add_library(OSGUIsh SHARED ${OSGUIshSources})
 
@@ -60,6 +61,14 @@ target_link_libraries(HUD
     ${Boost_LIBRARIES}
     OSGUIsh)
 set_property(TARGET HUD
+    PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+
+add_executable(PointsAndLines Demos/PointsAndLines.cpp)
+target_link_libraries(PointsAndLines
+    ${OPENSCENEGRAPH_LIBRARIES}
+    ${Boost_LIBRARIES}
+    OSGUIsh)
+set_property(TARGET PointsAndLines
     PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 # Copies 'Data' to same place as the executable -- it's needed there

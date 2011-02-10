@@ -17,3 +17,7 @@ the mouse wheel focus policy.
 HUD:
 Shows how to use the "multiple picking masks" feature to properly use
 OSGUIsh with a HUD.
+
+PointsAndLines:
+Shows how the "picker radius" parameter can be used to allow getting
+events points and lines.

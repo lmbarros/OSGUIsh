@@ -302,6 +302,7 @@ int main(int argc, char* argv[])
    // Create the OSGUIsh event handler
    osg::ref_ptr<OSGUIsh::EventHandler> guishEH(
       new OSGUIsh::EventHandler(
+         0.0,
          OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::MouseOverFocusPolicy>(),
          OSGUIsh::FocusPolicyFactoryMason<OSGUIsh::MouseDownFocusPolicy>()));
 
