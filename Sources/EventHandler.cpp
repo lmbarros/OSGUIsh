@@ -410,6 +410,7 @@ namespace OSGUIsh
          {
             assert(false && "Got an invalid mouse button code. Is 'ea' really "
                    "a mouse event?");
+            return MOUSE_BUTTON_COUNT; // Can't happen; but makes compiler happy
          }
       }
    }

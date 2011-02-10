@@ -32,7 +32,7 @@ set(OSGUIshSources
     Sources/MouseOverFocusPolicy.cpp
     Sources/Types.cpp)
 
-add_library(OSGUIsh SHARED ${OSGUIshSources})
+add_library(OSGUIsh STATIC ${OSGUIshSources})
 
 target_link_libraries(OSGUIsh
     ${OPENSCENEGRAPH_LIBRARIES}
