@@ -1,3 +1,35 @@
+Version 0.4 (02011-02-14)
+~~~~~~~~~~~
+
+This version breaks old user code -- which shouldn't be a big problem
+since AFAIK, I am the only person the world using OSGUIsh. The change
+resposible for this is:
+
+- The events are no longer stringly typed: instead of represeting them
+  with strings like "DoubleClick", they are now represented by
+  constants like EVENT_DOUBLE_CLICK.
+
+There is one useful new feature:
+
+- One can now perform picking with a "pick radius", which is necessary
+  to pick lines and points, and may be a good option when one needs to
+  pick very small objects. Unfortunately, when using a "pick radius",
+  the "ignore back faces" feature does not work.
+
+Speaking of which...
+
+- Bug fixed: "Ignore back faces" no longer needs two intersections to
+  work. When not using a positive "pick readius", OSGUIsh can now
+  always properly detect when a face is back-facing.
+
+Finally, there was one last change to the internals:
+
+- Internally, instead of using an osgViewer::View, an osg::View is now
+  used. This, hopefully, enables the use of OSGUIsh with viewers other
+  than those provided by osgViewer. Not tested, though.
+
+
+
 Version 0.3.1 (02010-07-22)
 ~~~~~~~~~~~~~
 
