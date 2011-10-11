@@ -2,7 +2,7 @@
 * EventHandler.cpp                                                             *
 * An event handler providing GUI-like events                                   *
 *                                                                              *
-* Copyright (C) 2006-2010 by Leandro Motta Barros.                             *
+* Copyright (C) 2006-2011 by Leandro Motta Barros.                             *
 *                                                                              *
 * This program is distributed under the OpenSceneGraph Public License. You     *
 * should have received a copy of it with the source distribution, in a file    *
@@ -13,17 +13,52 @@
 #include <boost/lexical_cast.hpp>
 
 
+namespace
+{
+   /**
+    * Checks if a given intersection hit has hit a front-facing face.
+    * @param camera The camera used to view scene. This is used as the starting
+    *        point of the ray cast into the scene to do the picking.
+    * @param hit The structure describing the intersection.
+    */
+   bool IsFrontFacing(const osg::Camera* camera,
+                      const OSGUIsh::Intersection_t& hit)
+   {
+      // If we don't have a reliable normal vector, pretend the face is
+      // front-facing. (This handles the PolytopeIntersector case, which does
+      // not provide normals for the intersections.)
+      if (hit.worldIntersectionNormal == osg::Vec3(0.0, 0.0, 0.0))
+         return true;
+
+      // Do the real is-front-facing test
+      osg::Vec3 eye;
+      osg::Vec3 center;
+      osg::Vec3 up;
+      camera->getViewMatrixAsLookAt(eye, center, up);
+
+      osg::Vec3 rayDir = hit.worldIntersectionPoint - eye;
+      rayDir.normalize();
+
+      return rayDir * hit.worldIntersectionNormal < 0.0;
+   }
+
+} // (anonymous) namespace
+
+
 namespace OSGUIsh
 {
    // - EventHandler::EventHandler ---------------------------------------------
    EventHandler::EventHandler(
+      double pickerRadius,
       const FocusPolicyFactory& kbdPolicyFactory,
       const FocusPolicyFactory& wheelPolicyFactory)
-      : ignoreBackFaces_(false),
-        kbdFocusPolicy_(kbdPolicyFactory.create (kbdFocus_)),
-        wheelFocusPolicy_(wheelPolicyFactory.create (wheelFocus_))
+      : pickerRadius_(pickerRadius), ignoreBackFaces_(false),
+        kbdFocusPolicy_(kbdPolicyFactory.create(kbdFocus_)),
+        wheelFocusPolicy_(wheelPolicyFactory.create(wheelFocus_))
    {
-      addNode (NodePtr());
+      assert(pickerRadius_ >= 0.0 && "Cannot use negative picker radius");
+
+      addNode(NodePtr());
 
       for (int i = 0; i < MOUSE_BUTTON_COUNT; ++i)
       {
@@ -44,8 +79,12 @@ namespace OSGUIsh
       switch (ea.getEventType())
       {
          case osgGA::GUIEventAdapter::FRAME:
-            handleFrameEvent(dynamic_cast<osgViewer::View*>(&aa), ea);
+         {
+            osg::View* view = dynamic_cast<osg::View*>(&aa);
+            assert(view != 0 && "Needed an osg::View here.");
+            handleFrameEvent(view, ea);
             break;
+         }
 
          case osgGA::GUIEventAdapter::PUSH:
             handlePushEvent(ea);
@@ -128,19 +167,19 @@ namespace OSGUIsh
    void EventHandler::addNode(const osg::ref_ptr<osg::Node> node)
    {
 #     define OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT) \
-         signals_[node][#EVENT] = SignalPtr(new EventHandler::Signal_t());
+         signals_[node][EVENT] = SignalPtr(new EventHandler::Signal_t());
 
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseEnter);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseLeave);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseMove);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseDown);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseUp);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(Click);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(DoubleClick);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseWheelUp);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(MouseWheelDown);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(KeyUp);
-      OSGUISH_EVENTHANDLER_ADD_EVENT(KeyDown);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_ENTER);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_LEAVE);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_MOVE);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_DOWN);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_UP);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_CLICK);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_DOUBLE_CLICK);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_WHEEL_UP);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_MOUSE_WHEEL_DOWN);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_KEY_UP);
+      OSGUISH_EVENTHANDLER_ADD_EVENT(EVENT_KEY_DOWN);
 
 #     undef OSGUISH_EVENTHANDLER_ADD_EVENT
    }
@@ -148,11 +187,10 @@ namespace OSGUIsh
 
 
    // - EventHandler::getSignal ------------------------------------------------
-   EventHandler::SignalPtr EventHandler::getSignal(
-      const NodePtr node, const std::string& signal)
+   EventHandler::SignalPtr EventHandler::getSignal(NodePtr node, Event signal)
    {
        SignalsMap_t::const_iterator signalsCollectionIter =
-          signals_.find (node);
+          signals_.find(node);
 
       if (signalsCollectionIter == signals_.end())
       {
@@ -162,13 +200,10 @@ namespace OSGUIsh
       }
 
       SignalCollection_t::const_iterator signalIter =
-         signalsCollectionIter->second.find (signal);
+         signalsCollectionIter->second.find(signal);
 
-      if (signalIter == signalsCollectionIter->second.end())
-      {
-         throw std::runtime_error (("Trying to get an unknown signal: '"
-                                    + signal + "'.").c_str());
-      }
+      assert(signalIter != signalsCollectionIter->second.end()
+             && "Trying to get an unknown signal.");
 
       return signalIter->second;
    }
@@ -215,7 +250,7 @@ namespace OSGUIsh
       typedef osg::NodePath::const_reverse_iterator iter_t;
       for (iter_t p = nodePath.rbegin(); p != nodePath.rend(); ++p)
       {
-         if (signals_.find (NodePtr(*p)) != signals_.end())
+         if (signals_.find(NodePtr(*p)) != signals_.end())
             return NodePtr(*p);
       }
 
@@ -225,103 +260,36 @@ namespace OSGUIsh
 
 
    // - EventHandler::handleFrameEvent -----------------------------------------
-   void EventHandler::handleFrameEvent(osgViewer::View* view,
+   void EventHandler::handleFrameEvent(osg::View* view,
                                        const osgGA::GUIEventAdapter& ea)
    {
-      assert (pickingMasks_.size() > 0);
+      assert(pickingMasks_.size() > 0);
 
-      // Find out who is, and who was under the mouse pointer
-      NodePtr currentNodeUnderMouse;
-      osg::Vec3 currentPositionUnderMouse;
-
-      typedef NodeMasks_t::const_iterator iter_t;
-      for (iter_t p = pickingMasks_.begin(); p != pickingMasks_.end(); ++p)
-      {
-         osgUtil::LineSegmentIntersector::Intersections hitList;
-
-         view->computeIntersections(ea.getX(), ea.getY(), hitList, *p);
-
-         if (hitList.size() > 0)
-         {
-            typedef
-               osgUtil::LineSegmentIntersector::Intersections::const_iterator
-               iter_t;
-
-            iter_t theHit = hitList.end();
-
-            // This implementation needs two or more hits to correctly ignore
-            // back faces. There is a little more detail about this in the
-            // Doxygen comments for \c ignoreBackFaces().
-            if (ignoreBackFaces_ && hitList.size() >= 2)
-            {
-               const osg::Vec3 begin =
-                  hitList.begin()->getWorldIntersectPoint();
-               const osg::Vec3 end =
-                  (--hitList.end())->getWorldIntersectPoint();
-
-               osg::Vec3 rayDir = end - begin;
-               rayDir.normalize();
-
-               for (iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
-               {
-                  const bool frontFacing =
-                     rayDir * hit->getWorldIntersectNormal() < 0.0;
-
-                  if (frontFacing)
-                  {
-                     theHit = hit;
-                     break;
-                  }
-               }
-            }
-            else // !ignoreBackFaces_
-            {
-               theHit = hitList.begin();
-            }
-
-            if (theHit != hitList.end())
-            {
-               currentNodeUnderMouse = getObservedNode (theHit->nodePath);
-               assert (signals_.find (currentNodeUnderMouse) != signals_.end()
-                       && "'getObservedNode()' returned an invalid value!");
-
-               currentPositionUnderMouse = theHit->getLocalIntersectPoint();
-
-               hitUnderMouse_ = *theHit;
-
-               break;
-            }
-         }  // if (hitList.size() > 0)
-      } // for (...pickingMasks_...)
-
-      NodePtr prevNodeUnderMouse = nodeUnderMouse_;
-      osg::Vec3 prevPositionUnderMouse = positionUnderMouse_;
-
-      nodeUnderMouse_ = currentNodeUnderMouse;
-      positionUnderMouse_ = currentPositionUnderMouse;
+      updatePickingData(view, ea);
 
       // Trigger the events
-      if (currentNodeUnderMouse == prevNodeUnderMouse)
+      if (nodeUnderMouse_ == prevNodeUnderMouse_)
       {
-         if (prevNodeUnderMouse.valid()
-             && currentPositionUnderMouse != prevPositionUnderMouse)
+         if (prevNodeUnderMouse_.valid()
+             && positionUnderMouse_ != prevPositionUnderMouse_)
          {
-            HandlerParams params (currentNodeUnderMouse, ea, hitUnderMouse_);
-            signals_[currentNodeUnderMouse]["MouseMove"]->operator()(params);
+            HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
+            signals_[nodeUnderMouse_][EVENT_MOUSE_MOVE]->operator()(params);
          }
       }
-      else // currentNodeUnderMouse != prevNodeUnderMouse
+      else // nodeUnderMouse != prevNodeUnderMouse_
       {
-         if (prevNodeUnderMouse.valid())
+         if (prevNodeUnderMouse_.valid())
          {
-            HandlerParams params (prevNodeUnderMouse, ea, hitUnderMouse_);
-            signals_[prevNodeUnderMouse]["MouseLeave"]->operator()(params);
+            HandlerParams params (prevNodeUnderMouse_, ea, hitUnderMouse_);
+            signals_[prevNodeUnderMouse_][EVENT_MOUSE_LEAVE]
+               ->operator()(params);
          }
 
-         if (currentNodeUnderMouse.valid())
+         if (nodeUnderMouse_.valid())
          {
-            HandlerParams params (currentNodeUnderMouse, ea, hitUnderMouse_);
-            signals_[currentNodeUnderMouse]["MouseEnter"]->operator()(params);
+            HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
+            signals_[nodeUnderMouse_][EVENT_MOUSE_ENTER]->operator()(params);
          }
       }
    }
@@ -335,11 +303,11 @@ namespace OSGUIsh
       if (nodeUnderMouse_.valid())
       {
          HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
-         signals_[nodeUnderMouse_]["MouseDown"]->operator()(params);
+         signals_[nodeUnderMouse_][EVENT_MOUSE_DOWN]->operator()(params);
       }
 
       // Do the bookkeeping for "Click" and "DoubleClick"
-      MouseButton button = getMouseButton (ea);
+      MouseButton button = getMouseButton(ea);
       nodeThatGotMouseDown_[button] = nodeUnderMouse_;
    }
 
@@ -352,17 +320,17 @@ namespace OSGUIsh
 
       if (nodeUnderMouse_.valid())
       {
-         MouseButton button = getMouseButton (ea);
+         MouseButton button = getMouseButton(ea);
 
          // First the trivial case: the "MouseUp" event
          HandlerParams params(nodeUnderMouse_, ea, hitUnderMouse_);
-         signals_[nodeUnderMouse_]["MouseUp"]->operator()(params);
+         signals_[nodeUnderMouse_][EVENT_MOUSE_UP]->operator()(params);
 
          // Now, the trickier ones: "Click" and "DoubleClick"
          if (nodeUnderMouse_ == nodeThatGotMouseDown_[button])
          {
             HandlerParams params(nodeUnderMouse_, ea, hitUnderMouse_);
-            signals_[nodeUnderMouse_]["Click"]->operator()(params);
+            signals_[nodeUnderMouse_][EVENT_CLICK]->operator()(params);
 
             const double now = ea.getTime();
 
@@ -370,7 +338,8 @@ namespace OSGUIsh
                 && nodeUnderMouse_ == nodeThatGotClick_[button])
             {
                HandlerParams params (nodeUnderMouse_, ea, hitUnderMouse_);
-               signals_[nodeUnderMouse_]["DoubleClick"]->operator()(params);
+               signals_[nodeUnderMouse_][EVENT_DOUBLE_CLICK]
+                  ->operator()(params);
             }
 
             nodeThatGotClick_[button] = nodeUnderMouse_;
@@ -385,7 +354,7 @@ namespace OSGUIsh
    void EventHandler::handleKeyDownEvent(const osgGA::GUIEventAdapter& ea)
    {
       HandlerParams params(kbdFocus_, ea, hitUnderMouse_);
-      signals_[kbdFocus_]["KeyDown"]->operator()(params);
+      signals_[kbdFocus_][EVENT_KEY_DOWN]->operator()(params);
    }
 
 
@@ -394,7 +363,7 @@ namespace OSGUIsh
    void EventHandler::handleKeyUpEvent(const osgGA::GUIEventAdapter& ea)
    {
       HandlerParams params(kbdFocus_, ea, hitUnderMouse_);
-      signals_[kbdFocus_]["KeyUp"]->operator()(params);
+      signals_[kbdFocus_][EVENT_KEY_UP]->operator()(params);
    }
 
 
@@ -407,14 +376,14 @@ namespace OSGUIsh
          case osgGA::GUIEventAdapter::SCROLL_UP:
          {
             HandlerParams params(wheelFocus_, ea, hitUnderMouse_);
-            signals_[wheelFocus_]["MouseWheelUp"]->operator()(params);
+            signals_[wheelFocus_][EVENT_MOUSE_WHEEL_UP]->operator()(params);
             break;
          }
 
          case osgGA::GUIEventAdapter::SCROLL_DOWN:
          {
             HandlerParams params(wheelFocus_, ea, hitUnderMouse_);
-            signals_[wheelFocus_]["MouseWheelDown"]->operator()(params);
+            signals_[wheelFocus_][EVENT_MOUSE_WHEEL_DOWN]->operator()(params);
             break;
          }
 
@@ -441,8 +410,157 @@ namespace OSGUIsh
          {
             assert(false && "Got an invalid mouse button code. Is 'ea' really "
                    "a mouse event?");
+            return MOUSE_BUTTON_COUNT; // Can't happen; but makes compiler happy
          }
       }
+   }
+
+
+
+   // - EventHandler::updatePickingData ----------------------------------------
+   void EventHandler::updatePickingData(
+      osg::View* view, const osgGA::GUIEventAdapter& ea)
+   {
+      assert(pickerRadius_ >= 0.0 && "Cannot use negative picker radius");
+
+      if (pickerRadius_ > 0.0)
+         updatePickingDataPolytope(view, ea);
+      else
+         updatePickingDataLine(view, ea);
+   }
+
+
+
+   // - EventHandler::updatePickingDataLine ------------------------------------
+   void EventHandler::updatePickingDataLine(
+      osg::View* view, const osgGA::GUIEventAdapter& ea)
+   {
+      const osg::Viewport* vp = view->getCamera()->getViewport();
+
+      const float x = vp->x() + static_cast<int>(
+         vp->width() * (ea.getXnormalized() * 0.5f + 0.5f));
+      const float y = vp->y() + static_cast<int>(
+         vp->height() * (ea.getYnormalized() * 0.5f + 0.5f));
+
+      NodePtr currentNodeUnderMouse;
+      osg::Vec3 currentPositionUnderMouse;
+
+      typedef NodeMasks_t::const_iterator iter_t;
+      for (iter_t p = pickingMasks_.begin(); p != pickingMasks_.end(); ++p)
+      {
+         osg::ref_ptr<osgUtil::LineSegmentIntersector> picker(
+            new osgUtil::LineSegmentIntersector(
+               osgUtil::Intersector::WINDOW, x, y));
+
+         osgUtil::IntersectionVisitor iv(picker);
+         iv.setTraversalMask(*p);
+
+         view->getCamera()->accept(iv);
+
+         const osgUtil::LineSegmentIntersector::Intersections hitList =
+            picker->getIntersections();
+
+         if (hitList.size() > 0)
+         {
+            typedef
+               osgUtil::LineSegmentIntersector::Intersections::const_iterator
+               iter_t;
+
+            iter_t theHit = hitList.end();
+
+            if (ignoreBackFaces_ && hitList.size() >= 2)
+            {
+               for (iter_t hit = hitList.begin(); hit != hitList.end(); ++hit)
+               {
+                  if (IsFrontFacing(view->getCamera(), *hit))
+                  {
+                     theHit = hit;
+                     break;
+                  }
+               }
+            }
+            else // !ignoreBackFaces_
+            {
+               theHit = hitList.begin();
+            }
+
+            if (theHit != hitList.end())
+            {
+               currentNodeUnderMouse = getObservedNode(theHit->nodePath);
+               assert(signals_.find(currentNodeUnderMouse) != signals_.end()
+                      && "'getObservedNode()' returned an invalid value!");
+
+               currentPositionUnderMouse = theHit->getLocalIntersectPoint();
+
+               hitUnderMouse_ = Intersection_t(*theHit);
+
+               break;
+            }
+         }  // if (hitList.size() > 0)
+      } // for (...pickingMasks_...)
+
+      prevNodeUnderMouse_ = nodeUnderMouse_;
+      prevPositionUnderMouse_ = positionUnderMouse_;
+
+      nodeUnderMouse_ = currentNodeUnderMouse;
+      positionUnderMouse_ = currentPositionUnderMouse;
+   }
+
+
+
+   // - EventHandler::updatePickingDataPolytope --------------------------------
+   void EventHandler::updatePickingDataPolytope(
+      osg::View* view, const osgGA::GUIEventAdapter& ea)
+   {
+      const osg::Viewport* vp = view->getCamera()->getViewport();
+
+      const float x = vp->x() + static_cast<int>(
+         vp->width() * (ea.getXnormalized() * 0.5f + 0.5f));
+      const float y = vp->y() + static_cast<int>(
+         vp->height() * (ea.getYnormalized() * 0.5f + 0.5f));
+
+      NodePtr currentNodeUnderMouse;
+      osg::Vec3 currentPositionUnderMouse;
+
+      typedef NodeMasks_t::const_iterator iter_t;
+      for (iter_t p = pickingMasks_.begin(); p != pickingMasks_.end(); ++p)
+      {
+         const float dx = vp->width() * pickerRadius_;
+         const float dy = (vp->height() / vp->width()) * dx;
+         osg::ref_ptr<osgUtil::PolytopeIntersector> picker(
+            new osgUtil::PolytopeIntersector(
+               osgUtil::Intersector::WINDOW, x-dx, y-dy, x+dx, y+dy));
+
+         osgUtil::IntersectionVisitor iv(picker);
+         iv.setTraversalMask(*p);
+
+         view->getCamera()->accept(iv);
+
+         const osgUtil::PolytopeIntersector::Intersections hitList =
+            picker->getIntersections();
+
+         if (hitList.size() == 0)
+            continue;
+
+         typedef osgUtil::PolytopeIntersector::Intersections::const_iterator
+            iter_t;
+
+         iter_t theHit = hitList.begin();
+
+         currentNodeUnderMouse = getObservedNode(theHit->nodePath);
+         assert(signals_.find(currentNodeUnderMouse) != signals_.end()
+                && "'getObservedNode()' returned an invalid value!");
+
+         currentPositionUnderMouse = theHit->localIntersectionPoint;
+
+         hitUnderMouse_ = *theHit;
+      }
+
+      prevNodeUnderMouse_ = nodeUnderMouse_;
+      prevPositionUnderMouse_ = positionUnderMouse_;
+
+      nodeUnderMouse_ = currentNodeUnderMouse;
+      positionUnderMouse_ = currentPositionUnderMouse;
    }
 
 } // namespace OSGUIsh

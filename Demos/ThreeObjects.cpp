@@ -150,8 +150,9 @@ int main(int argc, char* argv[])
    sgRoot->addChild(CreateHUD(1024, 768));
    viewer.setSceneData(sgRoot);
 
-   // Create the OSGUIsh event handler
-   osg::ref_ptr<OSGUIsh::EventHandler> guishEH(new OSGUIsh::EventHandler());
+   // Create the OSGUIsh event handler. For testing purposes, use a positive
+   // picking radius, even though this will not make much difference.
+   osg::ref_ptr<OSGUIsh::EventHandler> guishEH(new OSGUIsh::EventHandler(0.01));
 
    viewer.addEventHandler(guishEH);
 
@@ -160,12 +161,18 @@ int main(int argc, char* argv[])
    guishEH->addNode(StrawberryNode);
 
    // Register event handlers
-   guishEH->getSignal(TreeNode, "MouseEnter")->connect(&HandleMouseEnter);
-   guishEH->getSignal(StrawberryNode, "MouseEnter")->connect(&HandleMouseEnter);
-   guishEH->getSignal(TreeNode, "MouseLeave")->connect(&HandleMouseLeave);
-   guishEH->getSignal(StrawberryNode, "MouseLeave")->connect(&HandleMouseLeave);
-   guishEH->getSignal(StrawberryNode, "DoubleClick")->connect(&HandleDoubleClickStrawberry);
-   guishEH->getSignal(TreeNode, "DoubleClick")->connect(&HandleDoubleClickTree);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
+   guishEH->getSignal(StrawberryNode, OSGUIsh::EVENT_DOUBLE_CLICK)
+      ->connect(&HandleDoubleClickStrawberry);
+   guishEH->getSignal(TreeNode, OSGUIsh::EVENT_DOUBLE_CLICK)
+      ->connect(&HandleDoubleClickTree);
 
    // Enter rendering loop
    viewer.run();

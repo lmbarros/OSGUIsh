@@ -8,7 +8,8 @@ cmake_minimum_required(VERSION 2.6)
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
 set(CPACK_PACKAGE_VERSION_MINOR "3")
 
-find_package(OpenSceneGraph 2.8 REQUIRED COMPONENTS osgViewer osgUtil)
+find_package(OpenSceneGraph 2.8 REQUIRED
+    COMPONENTS osgViewer osgUtil osgGA osgDB osgText)
 
 set(Boost_USE_STATIC_LIBS OFF)
 find_package(Boost 1.39 REQUIRED COMPONENTS signals)
@@ -19,15 +20,23 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${Boost_INCLUDE_DIRS}
                     ${OPENSCENEGRAPH_INCLUDE_DIRS})
 
+# Link directories
+link_directories(${Boost_LIBRARY_DIRS})
+
 # Build the library
 set(OSGUIshSources
     Sources/EventHandler.cpp
     Sources/FocusPolicy.cpp
     Sources/ManualFocusPolicy.cpp
     Sources/MouseDownFocusPolicy.cpp
-    Sources/MouseOverFocusPolicy.cpp)
+    Sources/MouseOverFocusPolicy.cpp
+    Sources/Types.cpp)
 
-add_library(OSGUIsh SHARED ${OSGUIshSources})
+add_library(OSGUIsh STATIC ${OSGUIshSources})
+
+target_link_libraries(OSGUIsh
+    ${OPENSCENEGRAPH_LIBRARIES}
+    ${Boost_LIBRARIES})
 
 # Demos
 add_executable(Simplest Demos/Simplest.cpp)
@@ -60,6 +69,14 @@ target_link_libraries(HUD
     ${Boost_LIBRARIES}
     OSGUIsh)
 set_property(TARGET HUD
+    PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+
+add_executable(PointsAndLines Demos/PointsAndLines.cpp)
+target_link_libraries(PointsAndLines
+    ${OPENSCENEGRAPH_LIBRARIES}
+    ${Boost_LIBRARIES}
+    OSGUIsh)
+set_property(TARGET PointsAndLines
     PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 # Copies 'Data' to same place as the executable -- it's needed there

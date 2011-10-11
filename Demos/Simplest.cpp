@@ -96,17 +96,28 @@ int main(int argc, char* argv[])
    guishEH->addNode(loadedModel);
 
    // Register event handlers
-   guishEH->getSignal(loadedModel, "MouseMove")->connect(&HandleMouseMove);
-   guishEH->getSignal(loadedModel, "MouseEnter")->connect(&HandleMouseEnter);
-   guishEH->getSignal(loadedModel, "MouseLeave")->connect(&HandleMouseLeave);
-   guishEH->getSignal(loadedModel, "MouseDown")->connect(&HandleMouseDown);
-   guishEH->getSignal(loadedModel, "MouseUp")->connect(&HandleMouseUp);
-   guishEH->getSignal(loadedModel, "Click")->connect(&HandleClick);
-   guishEH->getSignal(loadedModel, "DoubleClick")->connect(&HandleDoubleClick);
-   guishEH->getSignal(loadedModel, "KeyDown")->connect(&HandleKeyDown);
-   guishEH->getSignal(loadedModel, "KeyUp")->connect(&HandleKeyUp);
-   guishEH->getSignal(loadedModel, "MouseWheelUp")->connect(&HandleMouseWheelUp);
-   guishEH->getSignal(loadedModel, "MouseWheelDown")->connect(&HandleMouseWheelDown);
+   guishEH->getSignal(loadedModel, OSGUIsh::EVENT_MOUSE_MOVE)
+      ->connect(&HandleMouseMove);
+   guishEH->getSignal(loadedModel, OSGUIsh::EVENT_MOUSE_ENTER)
+      ->connect(&HandleMouseEnter);
+   guishEH->getSignal(loadedModel, OSGUIsh::EVENT_MOUSE_LEAVE)
+      ->connect(&HandleMouseLeave);
+   guishEH->getSignal(loadedModel, OSGUIsh::EVENT_MOUSE_DOWN)
+      ->connect(&HandleMouseDown);
+   guishEH->getSignal(loadedModel, OSGUIsh::EVENT_MOUSE_UP)
+      ->connect(&HandleMouseUp);
+   guishEH->getSignal(loadedModel, OSGUIsh::EVENT_CLICK)
+      ->connect(&HandleClick);
+   guishEH->getSignal(loadedModel, OSGUIsh::EVENT_DOUBLE_CLICK)
+      ->connect(&HandleDoubleClick);
+   guishEH->getSignal(loadedModel, OSGUIsh::EVENT_KEY_DOWN)
+      ->connect(&HandleKeyDown);
+   guishEH->getSignal(loadedModel, OSGUIsh::EVENT_KEY_UP)
+      ->connect(&HandleKeyUp);
+   guishEH->getSignal(loadedModel, OSGUIsh::EVENT_MOUSE_WHEEL_UP)
+      ->connect(&HandleMouseWheelUp);
+   guishEH->getSignal(loadedModel, OSGUIsh::EVENT_MOUSE_WHEEL_DOWN)
+      ->connect(&HandleMouseWheelDown);
 
    // Set the receivers of keyboard and mouse wheel events
    guishEH->setKeyboardFocus(loadedModel);
