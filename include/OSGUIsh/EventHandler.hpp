@@ -9,8 +9,8 @@
 * named 'COPYING.txt'.                                                         *
 \******************************************************************************/
 
-#ifndef _GUISH_EVENT_HANDLER_HPP_
-#define _GUISH_EVENT_HANDLER_HPP_
+#ifndef _OSGUISH_EVENT_HANDLER_HPP_
+#define _OSGUISH_EVENT_HANDLER_HPP_
 
 #include <boost/signal.hpp>
 #include <osgGA/GUIEventHandler>
@@ -426,4 +426,4 @@ namespace OSGUIsh
 } // namespace OSGUIsh
 
 
-#endif // _GUISH_EVENT_HANDLER_HPP_
+#endif // _OSGUISH_EVENT_HANDLER_HPP_
