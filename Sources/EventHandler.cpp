@@ -457,7 +457,7 @@ namespace OSGUIsh
 
          view->getCamera()->accept(iv);
 
-         const osgUtil::LineSegmentIntersector::Intersections hitList =
+         const osgUtil::LineSegmentIntersector::Intersections& hitList =
             picker->getIntersections();
 
          if (hitList.size() > 0)
