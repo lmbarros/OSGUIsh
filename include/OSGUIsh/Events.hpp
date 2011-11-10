@@ -93,7 +93,7 @@ namespace OSGUIsh
        * <tt>FocusPolicy</tt>s can be used to determine which node has the
        * focus.
        */
-      EVENT_MOUSE_WHEEL_DOWN,
+      EVENT_MOUSE_WHEEL_DOWN
    };
 
 } // namespace OSGUIsh
