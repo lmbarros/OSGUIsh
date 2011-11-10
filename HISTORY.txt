@@ -1,3 +1,10 @@
+Version 0.4.1 (02011-11-10)
+~~~~~~~~~~~~~
+
+A very minor release, with no new features or bugfixes. It just got
+rid of one warnings that was bothering me.
+
+
 Version 0.4 (02011-02-14)
 ~~~~~~~~~~~
 
